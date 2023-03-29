@@ -1,3 +1,3 @@
 # calculator
 
-A new Flutter project.
+Samsung calculator clone using Flutter.
