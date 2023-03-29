@@ -34,14 +34,11 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
           .replaceAll('x', '*')
           .replaceAll('÷', '/');
 
-// check if expression ends with an operator
+      // check if expression ends with an operator
       var regExpressionCheck = RegExp(r'([\+\-\*/\(\)/%/])$');
 
-// if expression ends with an operator emit 0
+      // if expression ends with an operator emit 0
       if (regExpressionCheck.hasMatch(data) || !regExpression.hasMatch(data)) {
-        // var newData = data.split(regExpressionCheck);
-        // var expression = newData.getRange(0, newData.length - 1).join('');
-
         emit(const CalculatorState(result: ''));
         return;
       }
