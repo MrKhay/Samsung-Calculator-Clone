@@ -327,7 +327,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                               if (data.buttonText == '.') {
                                 editiText(data.buttonText);
-                                print(firstNumController.text);
                               }
                               setState(() {});
                             },
