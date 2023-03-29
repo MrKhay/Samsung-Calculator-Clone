@@ -1,0 +1,30 @@
+name: calculator
+org: com.ikhay.dev
+description: Samsung Muisc Clone Uisng Flutter.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+
+dependencies:
+  bloc: ^8.1.1
+  bloc_test: ^9.1.1
+  equatable: ^2.0.5
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.2
+  flutter_feather_icons: ^2.0.0+1
+  flutter_hooks: ^0.18.6
+  flutter_social_textfield: ^0.1.2
+  google_fonts: ^4.0.3
+  intl: ^0.18.0
+  math_expressions: ^2.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
