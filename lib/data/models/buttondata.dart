@@ -12,7 +12,7 @@ class ButtonData {
 
 const colorGreen = Colors.green;
 const colorWhite = Colors.white;
-const List<ButtonData> gridData = [
+const List<ButtonData> buttonGridItems = [
   ButtonData(buttonText: 'C', textColor: Colors.red),
   ButtonData(buttonText: '( )', textColor: colorGreen),
   ButtonData(buttonText: '%', textColor: colorGreen),

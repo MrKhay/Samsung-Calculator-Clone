@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:calculator/core/constants/strings.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:math_expressions/math_expressions.dart';
@@ -20,8 +21,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     });
 
     on<CalculatorEventSolveEquation>((event, emit) {
-      // check if expression contains operators
-      var regExpression = RegExp(r'([\+\-\x/\(÷)\%/*/÷])');
       if (event.expression.isEmpty) {
         emit(const CalculatorState(result: ''));
         return;
@@ -34,11 +33,10 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
           .replaceAll('x', '*')
           .replaceAll('÷', '/');
 
-      // check if expression ends with an operator
-      var regExpressionCheck = RegExp(r'([\+\-\*/\(\)/%/])$');
-
       // if expression ends with an operator emit 0
-      if (regExpressionCheck.hasMatch(data) || !regExpression.hasMatch(data)) {
+      if (regExpMatchEndWithOperator.hasMatch(data) ||
+          !regExpMatchContainsOperator.hasMatch(data) ||
+          regExpMatchEndsWithOpenBracket.hasMatch(data)) {
         emit(const CalculatorState(result: ''));
         return;
       }
@@ -51,7 +49,9 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 String calculateExpression(String expression) {
   // convert expression into num and then calculate and emit result
   Parser parser = Parser();
-  Expression exp = parser.parse(expression);
+
+  Expression exp = parser.parse(expression.formatExpression());
+
   num result = exp.evaluate(EvaluationType.REAL, ContextModel());
   if (result.remainder(1) == 0) {
     return result.toInt().toString();
@@ -62,5 +62,21 @@ String calculateExpression(String expression) {
     } else {
       return result.toString();
     }
+  }
+}
+
+extension FormatExpression on String {
+  String formatExpression() {
+    var bracket = replaceAll(RegExp(r'([\+\-\x/\÷\%/*./÷/0-9])'), '');
+    var openBrackets = bracket.split('').where((element) => element == '(');
+    var closedBrackets = bracket.split('').where((element) => element == ')');
+    var expression = this;
+
+    if (closedBrackets.length != openBrackets.length) {
+      for (int i = 0; i < openBrackets.length - closedBrackets.length; i++) {
+        expression = '$expression)';
+      }
+    }
+    return expression;
   }
 }

@@ -2,7 +2,6 @@ import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'core/constants/strings.dart';
 import 'core/themes/app_theme.dart';
 import 'logic/debug/app_bloc_observer.dart';
 import 'presentation/router/app_router.dart';
@@ -21,7 +20,6 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => CalculatorBloc(),
       child: MaterialApp(
-        title: Strings.appTitle,
         theme: AppTheme.darkTheme,
         darkTheme: AppTheme.darkTheme,
         debugShowCheckedModeBanner: false,

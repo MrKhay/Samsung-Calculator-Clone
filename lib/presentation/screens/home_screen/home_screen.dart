@@ -1,3 +1,4 @@
+import 'package:calculator/core/constants/strings.dart';
 import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/buttondata.dart';
 import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
@@ -6,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import '../../common_widgets/custom_font.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -21,11 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final Animation<AlignmentGeometry> _animationPosition;
   late final Animation<double> _animationScale;
   late final Animation<Color> _animationColor;
-  late TextEditingController firstNumController;
-  final secondNumController = TextEditingController();
-  final alritimaticOperatorController = TextEditingController();
-  bool equationIsValid = false;
-  var regExpMatchEndsWithOperator = RegExp(r'([\+\-\*/\(\)])$');
+  late TextEditingController mathExpressionController;
   final integerNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   final alritimeticOperators = ['+', '-', '÷', 'x', '%'];
 
@@ -34,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    firstNumController = CustomTextEditingController();
+    mathExpressionController = CustomTextEditingController();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -73,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
+    _colorAnimationController.dispose();
+    mathExpressionController.dispose();
 
     super.dispose();
   }
@@ -87,29 +87,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    final result = context.watch<CalculatorBloc>().state.result;
+    final expressionResult = context.watch<CalculatorBloc>().state.result;
 
-    firstNumController.addListener(() {
-      calculate(text: firstNumController.text, context: context);
+    mathExpressionController.addListener(() {
+      calculate(text: mathExpressionController.text, context: context);
     });
     void editiText(String data) {
-      var value = firstNumController.value;
-      var newValue = TextEditingValue(
-          text: value.text.replaceRange(
-            value.selection.baseOffset,
-            value.selection.extentOffset,
+      final mathExpression = mathExpressionController.value;
+      final newMathExpression = TextEditingValue(
+          text: mathExpression.text.replaceRange(
+            mathExpression.selection.baseOffset,
+            mathExpression.selection.extentOffset,
             data,
           ),
           selection: TextSelection.collapsed(
-            offset: value.selection.baseOffset + data.length,
+            offset: mathExpression.selection.baseOffset + data.length,
           ));
-      var textData = newValue.text.formatToHundreads();
-      var newValue1 = newValue.copyWith(
-          text: textData,
+      var expressionValue = newMathExpression.text.formatToHundreads();
+      final newExpressionValue = newMathExpression.copyWith(
+          text: expressionValue,
           selection: TextSelection.collapsed(
-            offset: textData.length,
+            offset: expressionValue.length,
           ));
-      firstNumController.value = newValue1;
+      mathExpressionController.value = newExpressionValue;
     }
 
     return SafeArea(
@@ -125,27 +125,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 children: [
                   Visibility(
                     visible: !isClicked,
-                    child: Container(
-                      padding: const EdgeInsets.all(40),
-                      child: TextField(
-                        textAlign: TextAlign.end,
-                        autofocus: true,
-                        controller: firstNumController,
-                        keyboardType: TextInputType.none,
-                        cursorColor: Colors.greenAccent,
-                        strutStyle: null,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp("[0-9]"),
-                          ),
-                        ],
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.bold, fontSize: 30),
+                    child: ScaleTransition(
+                      scale: _animationScale,
+                      child: Container(
+                        height: height * 0.08,
+                        // color: Colors.grey,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.only(top: 40, right: 40),
+                        child: TextField(
+                          textAlign: TextAlign.end,
+                          autofocus: true,
+                          controller: mathExpressionController,
+                          keyboardType: TextInputType.none,
+                          cursorColor: Colors.greenAccent,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp("[0-9]"),
+                            ),
+                          ],
+                          style: customFont(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 35,
+                              color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
                   Flexible(
-                    flex: 2,
+                    flex: 4,
                     child: Container(
                       padding: const EdgeInsets.all(40),
                       height: double.infinity,
@@ -162,8 +169,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     animation: _animationColor,
                                     builder: (context, child) {
                                       return Text(
-                                        result.formatNum(),
-                                        style: GoogleFonts.nunito(
+                                        expressionResult.formatNum(),
+                                        style: customFont(
                                             color: _animationColor.value,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20),
@@ -190,17 +197,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               color: Colors.grey,
                               size: 20,
                             )),
+                        const SizedBox(width: 10),
+                        IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.horizontal_rule_outlined,
+                              color: Colors.grey,
+                              size: 20,
+                            )),
+                        const SizedBox(width: 10),
+                        IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.calculate_outlined,
+                              color: Colors.grey,
+                              size: 20,
+                            )),
+                        const Spacer(),
                         AbsorbPointer(
-                          absorbing: firstNumController.text.isEmpty,
+                          absorbing: mathExpressionController.text.isEmpty,
                           child: IconButton(
                               onPressed: () {
+                                // triggers haptic feedback
+                                HapticFeedback.mediumImpact();
                                 if (isClicked) {
                                   resetAnimation();
-                                  final newData = result.toString();
-                                  firstNumController.clear();
-                                  editiText(newData);
+                                  final expression =
+                                      expressionResult.toString();
+                                  mathExpressionController.clear();
+                                  editiText(expression);
                                 }
-                                var oldValue = firstNumController.value;
+                                var oldValue = mathExpressionController.value;
                                 int cursorPosition = oldValue.selection.start;
                                 String newValueText = oldValue.text
                                         .substring(0, cursorPosition - 1) +
@@ -220,12 +247,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     selection: TextSelection.collapsed(
                                       offset: textData.length,
                                     ));
-                                firstNumController.value = newValue1;
+                                mathExpressionController.value = newValue1;
                                 setState(() {});
                               },
                               icon: Icon(
                                 FeatherIcons.delete,
-                                color: firstNumController.text.isEmpty
+                                color: mathExpressionController.text.isEmpty
                                     ? Colors.green.withOpacity(0.5)
                                     : Colors.green,
                                 size: 20,
@@ -253,89 +280,220 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     padding: const EdgeInsets.all(5),
                     physics: const NeverScrollableScrollPhysics(),
                     children: List.generate(
-                      gridData.length,
+                      buttonGridItems.length,
                       (index) {
-                        final data = gridData[index];
+                        final gridItemData = buttonGridItems[index];
                         return Semantics(
-                          button: true,
-                          tooltip: data.buttonText,
-                          enabled: true,
-                          readOnly: true,
                           child: MaterialButton(
                             color: index == 19 ? Colors.green : Colors.white10,
                             onPressed: () {
+                              final mathExpression =
+                                  mathExpressionController.text;
+                              // triggers haptic feedback
                               HapticFeedback.mediumImpact();
 
-                              /*Add '+' to the eqation and if '+' is already their dont add
-                              If eqation has been calculated and user wants to add + again 
-                              set the result to the new eqation and add '+' */
+                              /*
+                               Add '+' to the equation and if '+' is already their dont add
+                               If eqation has been calculated and user wants to add + again 
+                               set the result to the new eqation and add '+' 
+                              */
 
                               if (alritimeticOperators
-                                  .contains(data.buttonText)) {
-                                if (regExpMatchEndsWithOperator
-                                    .hasMatch(firstNumController.text)) {
+                                  .contains(gridItemData.buttonText)) {
+                                // returns when expression contains same operator
+
+                                if (regExpMatchEndWithOperator
+                                    .hasMatch(mathExpression)) {
+                                  showToast(invalidFormat);
                                   return;
                                 }
+                                // retuns when expression is empty
+                                if (mathExpression.isEmpty) {
+                                  showToast(invalidFormat);
+                                  return;
+                                }
+                                /* 
+                                  returns when equals is clicked.. rest animation and 
+                                  add new operator to the expreesion 
+                                */
 
                                 if (isClicked) {
                                   resetAnimation();
 
-                                  firstNumController.clear();
-                                  editiText('$result${data.buttonText}');
+                                  mathExpressionController.clear();
+                                  if (regExpMatchBeginsWithOperator
+                                      .hasMatch(expressionResult)) {
+                                    // returns expression without operator
+                                    var data = expressionResult
+                                        .split('')
+                                        .getRange(1, expressionResult.length)
+                                        .join('');
+                                    // returns only operator
+                                    var dataOperator = expressionResult
+                                        .split('')
+                                        .getRange(0, 1)
+                                        .join('');
+
+                                    editiText(
+                                        '($dataOperator$data${gridItemData.buttonText}');
+                                    return;
+                                  }
+
+                                  editiText(
+                                      '$expressionResult${gridItemData.buttonText}');
                                   return;
                                 }
 
-                                if (data.buttonText == '+/-') {
-                                  // editiText('(-');
+                                // retunr when expression end s with brackte and operator is + ÷ % x
+                                if (regExpMatchEndsWithOpenBracket
+                                    .hasMatch(mathExpression)) {
+                                  if (gridItemData.buttonText == '+' ||
+                                      gridItemData.buttonText == 'x' ||
+                                      gridItemData.buttonText == '÷' ||
+                                      gridItemData.buttonText == '%') {
+                                    return;
+                                  }
+                                  editiText(gridItemData.buttonText);
+                                  return;
                                 }
-
-                                // replace operator
-                                // if (firstNumController.text
-                                //     .endsWithAlritimeticOperator()) {
-                                //   var expression = firstNumController.text;
-                                //   firstNumController.clear();
-                                //   editiText(replaceLastAlritimeticOperator(
-                                //       expression: expression,
-                                //       alritimeticOperator: data.buttonText));
-                                // }
-
-                                editiText(data.buttonText);
+                                editiText(gridItemData.buttonText);
                               }
 
-                              if (integerNumbers.contains(data.buttonText)) {
+                              if (gridItemData.buttonText == '+/-') {
                                 if (isClicked) {
                                   resetAnimation();
-                                  firstNumController.clear();
-                                  editiText(data.buttonText);
+                                  var data = expressionResult;
+                                  mathExpressionController.clear();
+                                  // check if data ends with operator
+
+                                  if (regExpMatchBeginsWithOperator
+                                      .hasMatch(data)) {
+                                    // clears the operator and return value
+                                    var newData = data.replaceAll('-', '');
+                                    editiText(newData);
+                                  } else {
+                                    editiText('(-$data');
+                                  }
+                                }
+                                // return mathexpression is empty
+                                if (mathExpression.isEmpty) {
+                                  editiText('(-');
                                   return;
                                 }
-                                editiText(data.buttonText);
+
+                                // return ends with closed baracket
+                                if (regExpMatchEndWithClosedBracket
+                                    .hasMatch(mathExpression)) {
+                                  editiText('x(-');
+                                  return;
+                                }
                               }
 
-                              if (data.buttonText == '=' &&
-                                  firstNumController.text.isValidExpression()) {
-                                isClicked = true;
-                                _animationController.forward();
-                                _colorAnimationController.forward();
-                                // firstNumController.clear();
+                              // returns when input is 0-9
+                              if (integerNumbers
+                                  .contains(gridItemData.buttonText)) {
+                                // returns when animation has been ran
+                                if (isClicked) {
+                                  resetAnimation();
+                                  mathExpressionController.clear();
+                                  editiText(gridItemData.buttonText);
+                                  return;
+                                }
+                                // returns when expression length is greater than 15
+                                if (mathExpression.validateExpressionLength()) {
+                                  showToast(digitGreaterThanNormal);
+
+                                  return;
+                                }
+
+                                editiText(gridItemData.buttonText);
                               }
 
-                              if (data.buttonText == 'C') {
+                              // returns when button text is = and expression is valid
+                              if (gridItemData.buttonText == '=') {
+                                if (mathExpression.isValidExpression()) {
+                                  isClicked = true;
+                                  _animationController.forward();
+                                  _colorAnimationController.forward();
+                                }
+                                // returns if expression ends with operator
+                                if (regExpMatchEndWithOperator
+                                    .hasMatch(mathExpression)) {
+                                  showToast(invalidFormat);
+                                  return;
+                                }
+                              }
+
+                              // returns when is button text is C
+                              if (gridItemData.buttonText == 'C') {
                                 resetAnimation();
-                                firstNumController.clear();
+                                mathExpressionController.clear();
                               }
 
-                              if (data.buttonText == '.') {
-                                editiText(data.buttonText);
+                              // retuns when button is .
+                              if (gridItemData.buttonText == '.') {
+                                editiText(gridItemData.buttonText);
+                                return;
                               }
+
+                              // returns if button text is ( )
+                              if (gridItemData.buttonText == '( )') {
+                                // returns if expression is empty
+                                if (mathExpression.isEmpty) {
+                                  editiText('(');
+                                  return;
+                                }
+                                // returns when equal button is been pressed
+                                if (isClicked) {
+                                  resetAnimation();
+                                  var data = expressionResult;
+                                  mathExpressionController.clear();
+                                  editiText('${data}x(');
+                                }
+                                // returns when expression ends with operator
+                                // then number
+                                if (!mathExpression
+                                    .validateLastTwoExpression()) {
+                                  editiText(')');
+                                }
+
+                                if (regExpMatchEndsWithOperatorThenNumber
+                                    .hasMatch(mathExpression.format())) {
+                                  editiText(')');
+                                  return;
+                                }
+
+                                // returns when expression ends with operator
+                                if (regExpMatchEndWithOperator
+                                    .hasMatch(mathExpression)) {
+                                  editiText('(');
+                                  return;
+                                }
+
+                                // returns when expression ends with closed bracket
+                                if (regExpMatchEndWithClosedBracket
+                                    .hasMatch(mathExpression)) {
+                                  editiText('x(');
+
+                                  return;
+                                }
+
+                                // returns when expression ends with closed bracket
+                                if (regExpMatchEndWithNumber
+                                    .hasMatch(mathExpression.format())) {
+                                  editiText('x(');
+                                  return;
+                                }
+                              }
+
                               setState(() {});
                             },
                             child: Text(
-                              data.buttonText,
-                              style: GoogleFonts.nunito(
+                              gridItemData.buttonText,
+                              style: customFont(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: data.textColor),
+                                  color: gridItemData.textColor),
                             ),
                           ),
                         );
@@ -348,26 +506,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+}
 
-  void calculate({required String text, required BuildContext context}) {
-/*
-
-Checks if equation contains + then split the eqation 
-into two parts, then check if they re empty of not
-then send the eqation to bloc if eqation isnt valid resetBloc
-*/
-    context
-        .read<CalculatorBloc>()
-        .add(CalculatorEventSolveEquation(expression: text));
-
-    // if (text.contains('+')) {
-
-    // } else {
-    //   context.read<CalculatorBloc>().add(const CalculatorEventReset());
-    //   resetAnimation();
-    //   equationIsValid = false;
-    // }
-  }
+void calculate({required String text, required BuildContext context}) {
+  context
+      .read<CalculatorBloc>()
+      .add(CalculatorEventSolveEquation(expression: text));
 }
 
 // replaces ending operator with new one
@@ -382,5 +526,6 @@ String replaceLastAlritimeticOperator(
   return newData.join('');
 }
 
-
-// TODO Fix for when result starts with - e.g -7 
+// TODO Fix for when result starts with - e.g -7
+// TODO Fit TextField Issue with cusor
+// TODO Fit Bracket issue

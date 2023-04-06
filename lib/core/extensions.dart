@@ -1,132 +1,275 @@
-import 'package:intl/intl.dart';
+import 'constants/strings.dart';
 
 extension ValidExpression on String {
-  bool isValidExpression() {
-    // check if expression ends with an operator
-    var regExpression1 = RegExp(r'([^\+\-\x/\(÷)])$');
-    // check if expression contains operators
-    var regExpression2 = RegExp(r'([\+\-\x/\(÷)\%])');
+  bool validateExpressionLength() {
+    var expression = replaceAll(regExpMatchContainsBracketAndComma, '');
+    var expressionPart = expression.split(regExpMatchContainsOperator);
+    var isGreaterthanNormal = false;
 
-    return regExpression1.hasMatch(this) && regExpression2.hasMatch(this);
+// returns when expressions does not operators
+    if (!contains(regExpMatchContainsOperator)) {
+      isGreaterthanNormal = expression.length > 14;
+    }
+
+    for (var part in expressionPart) {
+      if (part.length > 14) {
+        isGreaterthanNormal = true;
+      } else {
+        isGreaterthanNormal = false;
+      }
+    }
+
+    if (regExpMatchEndWithOperator.hasMatch(expression)) {
+      isGreaterthanNormal = false;
+    }
+    return isGreaterthanNormal;
+  }
+
+  bool isValidExpression() {
+    return regExpMatchEndWithoutOperator.hasMatch(this) &&
+        regExpMatchContainsOperator.hasMatch(this);
   }
 
   bool endsWithAlritimeticOperator() {
-    // check if expression ends with an operator
-    var regExpression1 = RegExp(r'([\+\-\*/\(\)])$');
+    return regExpMatchEndWithOperator.hasMatch(this);
+  }
 
-    return regExpression1.hasMatch(this);
+  bool validateBrackets() {
+    var bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
+    var openBrackets = bracket.split('').where((element) => element == '(');
+    var closedBrackets = bracket.split('').where((element) => element == ')');
+
+    return openBrackets.length == closedBrackets.length;
+  }
+
+  bool validateNumberOfBrackets() {
+    var bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
+    var openBrackets = bracket.split('').where((element) => element == '(');
+    var closedBrackets = bracket.split('').where((element) => element == ')');
+
+    return openBrackets.length == closedBrackets.length;
+  }
+
+  List<String> splitExpression() {
+    List<String> expression = [];
+    List<String> numList = [];
+
+    for (var part in split('')) {
+      if (part == '(') {
+        expression.add(part);
+      }
+
+      if (regExpMatchConatinNumber.hasMatch(part)) {
+        numList.add(part);
+      }
+    }
+    expression.add(numList.join(''));
+    return expression;
+  }
+
+  bool validateLastTwoExpression() {
+    final data = split(regExpMatchContainsOperator);
+    var bracket = replaceAll(RegExp(r'([\+\-\x/\÷\%/*./÷/0-9])'), '');
+    var closedBrackets = bracket.split('').where((element) => element == ')');
+    var openedBrackets = bracket.split('').where((element) => element == '(');
+    var numOfClosingBrackets = 0;
+
+    for (int i = 0; i < data.length; i++) {
+      var part = data[i].splitExpression();
+      var dataExp = data[i];
+
+      if (part.length == 2 &&
+          regExpMatchBeginOpenBracketEndNumber.hasMatch(dataExp)) {
+        if (data.length > i + 1) {
+          if (regExpMatchConatinNumber.hasMatch(data[i + 1])) {
+            numOfClosingBrackets++;
+          }
+        }
+      }
+    }
+
+    return numOfClosingBrackets == closedBrackets.length;
   }
 }
 
 extension FormatExpression on String {
-  String formatNumWithDecimal() {
-    // format number with decimals
-    final formatter = NumberFormat('#,##0', 'en_Us');
+  String format() {
+    return replaceAll(',', '');
+  }
+
+  String formatExpressionWithDecimal() {
     var expressionHolder = split('.');
-    var formattedExpression =
-        formatter.format(num.parse(expressionHolder[0].replaceAll(',', '')));
+    var formattedExpression = hundersFormatter.format(
+        num.parse(expressionHolder[0].replaceAll(RegExp(r'([\,\(\)])'), '')));
 
     return '$formattedExpression.${expressionHolder[1]}';
   }
 
   String formatStringToNum() {
-    final data = int.parse(replaceAll(RegExp(r'[^0-9]'), ''));
-    final formatter = NumberFormat('#,##0', 'en_Us');
-    final formatted = formatter.format(data);
-    return formatted.toString().trim();
+    final data = int.parse(replaceAll(regExpMatchDoesntConatinNumber, ''));
+    final formatted = hundersFormatter.format(data);
+    return formatted.toString();
   }
 
   String formatToHundreads() {
-    final formatter = NumberFormat('#,##0', 'en_Us');
     // split inbetween of operators
-    final parts = split(RegExp(r'([\+\-\x/\÷\%])'));
-
+    final individualExpressions = split(regExpMatchContainsOperator);
     // returns only operators
-    final operators = replaceAll(RegExp(r'[^\+\-\x\÷/%]'), '');
+    final operators = replaceAll(regExpMatchDoesNotContainsOperator, '');
 
-    // check if expression ends with an operator
-    final regExpressionCheck = RegExp(r'([\+\-\x/\÷/%])$');
-    List<String> newFormatterInt = [];
-    List<String> formattedInt = [];
+    List<String> formattedExpressionParts = [];
+    List<String> formattedExpressionPartWithOperators = [];
     var operatorsIndex = 0;
 
-// check if string isempty
+    // returns if expression is empty
     if (isEmpty) {
       return '';
     }
 
-// check if expression ends with an operator
-    if (regExpressionCheck.hasMatch(this)) {
-      var newParts = parts.getRange(0, parts.length - 1);
+// if expression contains bracket
+    if (regExpMatchConatainBrackets.hasMatch(this)) {
+      for (var part in individualExpressions) {
+        if (RegExp(r'[\(\)]').hasMatch(part)) {
+          if (part.startsWith('(')) {
+            final formattedExpression =
+                part.replaceAll(regExpMatchConatainBrackets, '');
 
-      for (var part in newParts) {
-        if (part.contains('.')) {
-          formattedInt.add(part.formatNumWithDecimal());
+            if (formattedExpression.isNotEmpty) {
+              final expressionPart = part.contains('.')
+                  ? '(${part.formatExpressionWithDecimal()}'
+                  : '(${hundersFormatter.format(num.parse(formattedExpression.replaceAll(',', '')))}';
+              formattedExpressionParts.add(expressionPart);
+            } else {
+              formattedExpressionParts.add('(');
+            }
+          } else if (part.endsWith(')')) {
+            final formattedExpression = part
+                .replaceAll(regExpMatchConatainBrackets, '')
+                .replaceAll(',', '');
+
+            final expressionPart = part.contains('.')
+                ? '${part.formatExpressionWithDecimal()})'
+                : '${hundersFormatter.format(num.parse(formattedExpression))})';
+            formattedExpressionParts.add(expressionPart);
+          }
+        } else if (part == '') {
+          break;
         } else {
-          formattedInt
-              .add(formatter.format(num.parse(part.replaceAll(',', ''))));
+          final expressionPart = part.contains('.')
+              ? part.formatExpressionWithDecimal()
+              : hundersFormatter.format(
+                  num.parse(part.replaceAll(RegExp(r'([\+\-\x/\,\÷\%])'), '')));
+          formattedExpressionParts.add(expressionPart);
         }
       }
 
-      for (int i = 0; i < formattedInt.length; i++) {
-        newFormatterInt.add(formattedInt.elementAt(i));
+      for (int i = 0; i < formattedExpressionParts.length; i++) {
+        formattedExpressionPartWithOperators
+            .add(formattedExpressionParts.elementAt(i));
 
-        if (i != formattedInt.length - 1 && operatorsIndex < operators.length) {
-          newFormatterInt.add(operators[operatorsIndex]);
+        if (i != formattedExpressionParts.length - 1 &&
+            operatorsIndex < operators.length) {
+          formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
           operatorsIndex++;
         }
       }
 
       while (operatorsIndex < operators.length) {
-        newFormatterInt.add(operators[operatorsIndex]);
+        formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
         operatorsIndex++;
       }
 
-      return newFormatterInt.join('');
+      return formattedExpressionPartWithOperators.join('');
     }
 
-// format expression
-    for (var part in parts) {
+    // retuns if expression ends with an operator
+    // if (regExpMatchEndWithOperator.hasMatch(this)) {
+    //   /*
+    //    take all expression part else the ending operator
+    //    e.g 3'4500+900+80- return 34500+900+80
+    //   */
+    //   final expressionParts =
+    //       individualExpressions.getRange(0, individualExpressions.length - 1);
+
+    //   // format each parts
+    //   for (var part in expressionParts) {
+    //     if (part.contains('.')) {
+    //       // returns if part contains decimal
+    //       formattedExpressionParts.add(part.formatExpressionWithDecimal());
+    //     } else {
+    //       formattedExpressionParts.add(
+    //           // retuns and removes all ','
+    //           hundersFormatter.format(num.parse(part.replaceAll(',', ''))));
+    //     }
+    //   }
+
+    //   // add operators back to expressions
+    //   for (int i = 0; i < formattedExpressionParts.length; i++) {
+    //     formattedExpressionPartWithOperators
+    //         .add(formattedExpressionParts.elementAt(i));
+
+    //     if (i != formattedExpressionParts.length - 1 &&
+    //         operatorsIndex < operators.length) {
+    //       formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
+    //       operatorsIndex++;
+    //     }
+    //   }
+
+    //   while (operatorsIndex < operators.length) {
+    //     formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
+    //     operatorsIndex++;
+    //   }
+
+    //   return formattedExpressionPartWithOperators.join('');
+    // }
+
+    /*
+     returns when expression does not end with an operator, 
+     formats each expression part then add its operator
+     */
+    for (var part in individualExpressions) {
       if (part.contains('.')) {
-        formattedInt.add(part.formatNumWithDecimal());
+        formattedExpressionParts.add(part.formatExpressionWithDecimal());
+      } else if (part == '') {
+        break;
       } else {
-        part = formatter.format(num.parse(part.replaceAll(',', '')));
-        formattedInt.add(part);
+        part = hundersFormatter.format(num.parse(part.replaceAll(',', '')));
+        formattedExpressionParts.add(part);
       }
     }
-    for (int i = 0; i < formattedInt.length; i++) {
-      newFormatterInt.add(formattedInt.elementAt(i));
+    for (int i = 0; i < formattedExpressionParts.length; i++) {
+      formattedExpressionPartWithOperators
+          .add(formattedExpressionParts.elementAt(i));
 
-      if (i != formattedInt.length - 1 && operatorsIndex < operators.length) {
-        newFormatterInt.add(operators[operatorsIndex]);
+      if (i != formattedExpressionParts.length - 1 &&
+          operatorsIndex < operators.length) {
+        formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
         operatorsIndex++;
       }
     }
 
     while (operatorsIndex < operators.length) {
-      newFormatterInt.add(operators[operatorsIndex]);
+      formattedExpressionPartWithOperators.add(operators[operatorsIndex]);
       operatorsIndex++;
     }
-    return newFormatterInt.join('');
+    return formattedExpressionPartWithOperators.join('');
   }
 
   num covertStringToNum() {
-    var data = num.parse(replaceAll(RegExp(r'[^0-9]'), ''));
+    var data = num.parse(replaceAll(regExpMatchDoesntConatinNumber, ''));
     return data;
   }
 }
 
 extension FormatNumberTo on String {
   String formatNum() {
-    final formatter = NumberFormat('#,##0', 'en_Us');
-
     if (isEmpty) {
       return '';
     } else {
-      final formatted = formatter.format(num.parse(this));
+      final formatted = hundersFormatter.format(num.parse(this));
 
       if (toString().contains('.')) {
-        return formatNumWithDecimal();
+        return formatExpressionWithDecimal();
       } else {
         return formatted.toString().trim();
       }
