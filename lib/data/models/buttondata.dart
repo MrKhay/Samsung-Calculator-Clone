@@ -13,28 +13,6 @@ class ButtonData {
 }
 
 const colorWhite = Colors.white;
-List<ButtonData> buttonGridItems = const [
-  ButtonData(buttonText: 'C', textColor: Colors.red),
-  ButtonData(buttonText: '( )', textColor: primaryColor),
-  ButtonData(buttonText: '%', textColor: primaryColor),
-  ButtonData(buttonText: '÷', textColor: primaryColor),
-  ButtonData(buttonText: '7', textColor: colorWhite),
-  ButtonData(buttonText: '8', textColor: colorWhite),
-  ButtonData(buttonText: '9', textColor: colorWhite),
-  ButtonData(buttonText: 'x', textColor: primaryColor),
-  ButtonData(buttonText: '4', textColor: colorWhite),
-  ButtonData(buttonText: '5', textColor: colorWhite),
-  ButtonData(buttonText: '6', textColor: colorWhite),
-  ButtonData(buttonText: '-', textColor: primaryColor),
-  ButtonData(buttonText: '1', textColor: colorWhite),
-  ButtonData(buttonText: '2', textColor: colorWhite),
-  ButtonData(buttonText: '3', textColor: colorWhite),
-  ButtonData(buttonText: '+', textColor: primaryColor),
-  ButtonData(buttonText: '+/-', textColor: colorWhite),
-  ButtonData(buttonText: '0', textColor: colorWhite),
-  ButtonData(buttonText: '.', textColor: colorWhite),
-  ButtonData(buttonText: '=', textColor: colorWhite),
-];
 
 const List<ButtonData> buttonNumbersGrid = [
   ButtonData(buttonText: 'C', textColor: Colors.red),

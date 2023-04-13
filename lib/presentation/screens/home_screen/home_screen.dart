@@ -30,16 +30,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late CustomTextEditingController mathExpressionController;
   final TextEditingController _mathResultController = TextEditingController();
   FocusNode mathResultFocusNode = FocusNode();
-  final integerNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-  final alritimeticOperators = ['+', '-', '÷', 'x', '%'];
-  bool isClicked = false;
-  bool isHistroySelected = false;
+  bool isHistroyPanelSelected = false;
 
   @override
   void initState() {
     super.initState();
     mathExpressionController = CustomTextEditingController();
-
     _positionAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -99,7 +95,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void resetAnimation() {
-    isClicked = false;
     _positionAnimationController.reset();
     _colorAnimationController.reset();
   }
@@ -208,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             return TextField(
                                               controller: _mathResultController,
                                               textAlign: TextAlign.end,
-                                              enabled: isClicked,
+                                              enabled: animationStatus,
                                               // focusNode: mathResultFocusNode,
                                               autofocus: true,
                                               keyboardType: TextInputType.none,
@@ -249,11 +244,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       children: [
                         IconButton(
                             onPressed: () {
-                              isHistroySelected = !isHistroySelected;
+                              isHistroyPanelSelected = !isHistroyPanelSelected;
                               setState(() {});
                             },
                             icon: Icon(
-                              isHistroySelected
+                              isHistroyPanelSelected
                                   ? FontAwesomeIcons.calculator
                                   : FontAwesomeIcons.clock,
                               color: Colors.grey,
@@ -282,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               onPressed: () {
                                 // triggers haptic feedback
                                 HapticFeedback.mediumImpact();
-                                if (isClicked) {
+                                if (animationStatus) {
                                   resetAnimation();
                                   final expression =
                                       expressionResult.toString();
@@ -320,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Flexible(
                         flex: 3,
                         child: Container(
-                          child: isHistroySelected
+                          child: isHistroyPanelSelected
                               ? Container(
                                   alignment: Alignment.topRight,
                                   decoration: const BoxDecoration(
