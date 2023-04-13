@@ -1,13 +1,15 @@
-import 'package:calculator/core/constants/strings.dart';
 import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/buttondata.dart';
 import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import 'package:calculator/presentation/screens/home_screen/widgets/calculation_histroy.dart';
 import 'package:calculator/presentation/screens/home_screen/widgets/custom_textcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/constants/strings.dart';
+import '../../common_widgets/custom_button.dart';
 import '../../common_widgets/custom_font.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,25 +20,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late final AnimationController _animationController;
+  late final AnimationController _positionAnimationController;
   late final AnimationController _colorAnimationController;
+  late final AnimationController _visibilityAnimationController;
   late final Animation<AlignmentGeometry> _animationPosition;
-  late final Animation<double> _animationScale;
   late final Animation<Color> _animationColor;
-  late TextEditingController mathExpressionController;
+  late final Animation<double> _animationScale;
+  late final Animation<double> _animationVisibility;
+  late CustomTextEditingController mathExpressionController;
+  final TextEditingController _mathResultController = TextEditingController();
+  FocusNode mathResultFocusNode = FocusNode();
   final integerNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
   final alritimeticOperators = ['+', '-', '÷', 'x', '%'];
-
   bool isClicked = false;
+  bool isHistroySelected = false;
 
   @override
   void initState() {
     super.initState();
     mathExpressionController = CustomTextEditingController();
-    _animationController = AnimationController(
+
+    _positionAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(
-        milliseconds: 300,
+        milliseconds: 500,
+      ),
+    );
+
+    _visibilityAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 100,
       ),
     );
     _colorAnimationController = AnimationController(
@@ -48,38 +62,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _animationPosition =
         Tween(begin: Alignment.bottomRight, end: Alignment.topRight).animate(
       CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.linearToEaseOut,
+        parent: _positionAnimationController,
+        curve: Curves.linear,
       ),
     );
     _animationColor =
-        Tween<Color>(begin: Colors.grey, end: Colors.green).animate(
+        Tween<Color>(begin: Colors.grey, end: primaryColor).animate(
       CurvedAnimation(
         parent: _colorAnimationController,
         curve: Curves.easeInOut,
       ),
     );
 
-    _animationScale = Tween<double>(begin: 1, end: 1.7).animate(
+    _animationVisibility = Tween<double>(begin: 1, end: 0).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: _visibilityAnimationController,
         curve: Curves.easeInOut,
+      ),
+    );
+
+    _animationScale = Tween<double>(begin: 1, end: 1.5).animate(
+      CurvedAnimation(
+        parent: _positionAnimationController,
+        curve: Curves.linearToEaseOut,
       ),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _positionAnimationController.dispose();
     _colorAnimationController.dispose();
+    _visibilityAnimationController.dispose();
     mathExpressionController.dispose();
-
     super.dispose();
   }
 
   void resetAnimation() {
     isClicked = false;
-    _animationController.reset();
+    _positionAnimationController.reset();
     _colorAnimationController.reset();
   }
 
@@ -88,29 +109,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final expressionResult = context.watch<CalculatorBloc>().state.result;
+    final animationStatus =
+        _positionAnimationController.status == AnimationStatus.completed;
 
     mathExpressionController.addListener(() {
       calculate(text: mathExpressionController.text, context: context);
+
+      if (mathExpressionController.text.isEmpty) {
+        setState(() {});
+      }
     });
-    void editiText(String data) {
-      final mathExpression = mathExpressionController.value;
-      final newMathExpression = TextEditingValue(
-          text: mathExpression.text.replaceRange(
-            mathExpression.selection.baseOffset,
-            mathExpression.selection.extentOffset,
-            data,
-          ),
-          selection: TextSelection.collapsed(
-            offset: mathExpression.selection.baseOffset + data.length,
-          ));
-      var expressionValue = newMathExpression.text.formatToHundreads();
-      final newExpressionValue = newMathExpression.copyWith(
-          text: expressionValue,
-          selection: TextSelection.collapsed(
-            offset: expressionValue.length,
-          ));
-      mathExpressionController.value = newExpressionValue;
-    }
+    _positionAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        mathResultFocusNode.requestFocus();
+      }
+      if (status == AnimationStatus.forward) {
+        setState(() {});
+      }
+    });
 
     return SafeArea(
       child: Scaffold(
@@ -123,59 +139,100 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Visibility(
-                    visible: !isClicked,
-                    child: ScaleTransition(
-                      scale: _animationScale,
-                      child: Container(
-                        height: height * 0.08,
-                        // color: Colors.grey,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.only(top: 40, right: 40),
-                        child: TextField(
-                          textAlign: TextAlign.end,
-                          autofocus: true,
-                          controller: mathExpressionController,
-                          keyboardType: TextInputType.none,
-                          cursorColor: Colors.greenAccent,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp("[0-9]"),
-                            ),
-                          ],
-                          style: customFont(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 35,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ),
                   Flexible(
-                    flex: 4,
+                    flex: 5,
                     child: Container(
-                      padding: const EdgeInsets.all(40),
-                      height: double.infinity,
-                      width: width,
+                      // color: Colors.grey.withOpacity(0.2),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: AlignTransition(
-                              alignment: _animationPosition,
-                              child: ScaleTransition(
-                                scale: _animationScale,
-                                alignment: Alignment.topRight,
-                                child: AnimatedBuilder(
-                                    animation: _animationColor,
-                                    builder: (context, child) {
-                                      return Text(
-                                        expressionResult.formatNum(),
-                                        style: customFont(
-                                            color: _animationColor.value,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20),
-                                      );
-                                    }),
+                          AnimatedBuilder(
+                            animation: _animationVisibility,
+                            builder: (context, child) => Visibility(
+                              visible: _visibilityAnimationController.value == 1
+                                  ? false
+                                  : true,
+                              child: Expanded(
+                                flex: 4,
+                                child: Container(
+                                  // color: Colors.amber,
+                                  alignment: Alignment.topRight,
+                                  padding:
+                                      const EdgeInsets.only(right: 40, top: 40),
+                                  child: TextField(
+                                    textAlign: TextAlign.end,
+                                    autofocus: true,
+                                    scrollPhysics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    controller: mathExpressionController,
+                                    keyboardType: TextInputType.none,
+                                    cursorColor: Colors.greenAccent,
+                                    maxLines: null,
+                                    minLines: null,
+                                    expands: true,
+                                    magnifierConfiguration:
+                                        TextMagnifierConfiguration.disabled,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp("[0-9]"),
+                                      ),
+                                    ],
+                                    style: customFont(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 35,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Flexible(
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.only(right: 40, top: 40),
+                              width: width,
+                              child: AlignTransition(
+                                alignment: _animationPosition,
+                                child: ScaleTransition(
+                                  scale: _animationScale,
+                                  alignment: Alignment.topRight,
+                                  child: AnimatedBuilder(
+                                      animation: _animationColor,
+                                      builder: (context, child) {
+                                        return BlocBuilder<CalculatorBloc,
+                                            CalculatorState>(
+                                          builder: (context, state) {
+                                            _mathResultController.text =
+                                                state.result.formatNum();
+                                            return TextField(
+                                              controller: _mathResultController,
+                                              textAlign: TextAlign.end,
+                                              enabled: isClicked,
+                                              // focusNode: mathResultFocusNode,
+                                              autofocus: true,
+                                              keyboardType: TextInputType.none,
+                                              cursorColor: Colors.greenAccent,
+                                              cursorWidth: 0.8,
+
+                                              magnifierConfiguration:
+                                                  TextMagnifierConfiguration
+                                                      .disabled,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .allow(
+                                                  RegExp("[0-9]"),
+                                                ),
+                                              ],
+                                              style: customFont(
+                                                  color: _animationColor.value,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20),
+                                            );
+                                          },
+                                        );
+                                      }),
+                                ),
                               ),
                             ),
                           ),
@@ -191,9 +248,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              FeatherIcons.clock,
+                            onPressed: () {
+                              isHistroySelected = !isHistroySelected;
+                              setState(() {});
+                            },
+                            icon: Icon(
+                              isHistroySelected
+                                  ? FontAwesomeIcons.calculator
+                                  : FontAwesomeIcons.clock,
                               color: Colors.grey,
                               size: 20,
                             )),
@@ -201,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         IconButton(
                             onPressed: () {},
                             icon: const Icon(
-                              Icons.horizontal_rule_outlined,
+                              FontAwesomeIcons.rulerHorizontal,
                               color: Colors.grey,
                               size: 20,
                             )),
@@ -225,36 +287,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   final expression =
                                       expressionResult.toString();
                                   mathExpressionController.clear();
-                                  editiText(expression);
+                                  editiText(
+                                      expression, mathExpressionController);
                                 }
-                                var oldValue = mathExpressionController.value;
-                                int cursorPosition = oldValue.selection.start;
-                                String newValueText = oldValue.text
-                                        .substring(0, cursorPosition - 1) +
-                                    oldValue.text.substring(
-                                      cursorPosition,
-                                    );
-                                var newValue = TextEditingValue(
-                                  text: newValueText,
-                                  selection: TextSelection.collapsed(
-                                      offset: cursorPosition - 1),
-                                );
-
-                                var textData =
-                                    newValue.text.formatToHundreads();
-                                var newValue1 = newValue.copyWith(
-                                    text: textData,
-                                    selection: TextSelection.collapsed(
-                                      offset: textData.length,
-                                    ));
-                                mathExpressionController.value = newValue1;
-                                setState(() {});
+                                deleteText(mathExpressionController);
                               },
                               icon: Icon(
                                 FeatherIcons.delete,
                                 color: mathExpressionController.text.isEmpty
-                                    ? Colors.green.withOpacity(0.5)
-                                    : Colors.green,
+                                    ? primaryColor.withOpacity(0.5)
+                                    : primaryColor,
                                 size: 20,
                               )),
                         ),
@@ -268,244 +310,115 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               width: width,
               height: 0.2,
               color: Colors.grey,
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             ),
             Expanded(
               child: SizedBox(
-                width: width,
-                child: GridView.count(
-                    childAspectRatio: 1.25,
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 10,
-                    padding: const EdgeInsets.all(5),
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: List.generate(
-                      buttonGridItems.length,
-                      (index) {
-                        final gridItemData = buttonGridItems[index];
-                        return Semantics(
-                          child: MaterialButton(
-                            color: index == 19 ? Colors.green : Colors.white10,
-                            onPressed: () {
-                              final mathExpression =
-                                  mathExpressionController.text;
-                              // triggers haptic feedback
-                              HapticFeedback.mediumImpact();
-
-                              /*
-                               Add '+' to the equation and if '+' is already their dont add
-                               If eqation has been calculated and user wants to add + again 
-                               set the result to the new eqation and add '+' 
-                              */
-
-                              if (alritimeticOperators
-                                  .contains(gridItemData.buttonText)) {
-                                // returns when expression contains same operator
-
-                                if (regExpMatchEndWithOperator
-                                    .hasMatch(mathExpression)) {
-                                  showToast(invalidFormat);
-                                  return;
-                                }
-                                // retuns when expression is empty
-                                if (mathExpression.isEmpty) {
-                                  showToast(invalidFormat);
-                                  return;
-                                }
-                                /* 
-                                  returns when equals is clicked.. rest animation and 
-                                  add new operator to the expreesion 
-                                */
-
-                                if (isClicked) {
-                                  resetAnimation();
-
-                                  mathExpressionController.clear();
-                                  if (regExpMatchBeginsWithOperator
-                                      .hasMatch(expressionResult)) {
-                                    // returns expression without operator
-                                    var data = expressionResult
-                                        .split('')
-                                        .getRange(1, expressionResult.length)
-                                        .join('');
-                                    // returns only operator
-                                    var dataOperator = expressionResult
-                                        .split('')
-                                        .getRange(0, 1)
-                                        .join('');
-
-                                    editiText(
-                                        '($dataOperator$data${gridItemData.buttonText}');
-                                    return;
-                                  }
-
-                                  editiText(
-                                      '$expressionResult${gridItemData.buttonText}');
-                                  return;
-                                }
-
-                                // retunr when expression end s with brackte and operator is + ÷ % x
-                                if (regExpMatchEndsWithOpenBracket
-                                    .hasMatch(mathExpression)) {
-                                  if (gridItemData.buttonText == '+' ||
-                                      gridItemData.buttonText == 'x' ||
-                                      gridItemData.buttonText == '÷' ||
-                                      gridItemData.buttonText == '%') {
-                                    return;
-                                  }
-                                  editiText(gridItemData.buttonText);
-                                  return;
-                                }
-                                editiText(gridItemData.buttonText);
-                              }
-
-                              if (gridItemData.buttonText == '+/-') {
-                                if (isClicked) {
-                                  resetAnimation();
-                                  var data = expressionResult;
-                                  mathExpressionController.clear();
-                                  // check if data ends with operator
-
-                                  if (regExpMatchBeginsWithOperator
-                                      .hasMatch(data)) {
-                                    // clears the operator and return value
-                                    var newData = data.replaceAll('-', '');
-                                    editiText(newData);
-                                  } else {
-                                    editiText('(-$data');
-                                  }
-                                }
-                                // return mathexpression is empty
-                                if (mathExpression.isEmpty) {
-                                  editiText('(-');
-                                  return;
-                                }
-
-                                // return ends with closed baracket
-                                if (regExpMatchEndWithClosedBracket
-                                    .hasMatch(mathExpression)) {
-                                  editiText('x(-');
-                                  return;
-                                }
-                              }
-
-                              // returns when input is 0-9
-                              if (integerNumbers
-                                  .contains(gridItemData.buttonText)) {
-                                // returns when animation has been ran
-                                if (isClicked) {
-                                  resetAnimation();
-                                  mathExpressionController.clear();
-                                  editiText(gridItemData.buttonText);
-                                  return;
-                                }
-                                // returns when expression length is greater than 15
-                                if (mathExpression.validateExpressionLength()) {
-                                  showToast(digitGreaterThanNormal);
-
-                                  return;
-                                }
-
-                                editiText(gridItemData.buttonText);
-                              }
-
-                              // returns when button text is = and expression is valid
-                              if (gridItemData.buttonText == '=') {
-                                if (mathExpression.isValidExpression()) {
-                                  isClicked = true;
-                                  _animationController.forward();
-                                  _colorAnimationController.forward();
-                                }
-                                // returns if expression ends with operator
-                                if (regExpMatchEndWithOperator
-                                    .hasMatch(mathExpression)) {
-                                  showToast(invalidFormat);
-                                  return;
-                                }
-                              }
-
-                              // returns when is button text is C
-                              if (gridItemData.buttonText == 'C') {
-                                resetAnimation();
-                                mathExpressionController.clear();
-                              }
-
-                              // retuns when button is .
-                              if (gridItemData.buttonText == '.') {
-                                editiText(gridItemData.buttonText);
-                                return;
-                              }
-
-                              // returns if button text is ( )
-                              if (gridItemData.buttonText == '( )') {
-                                // returns if expression is empty
-                                if (mathExpression.isEmpty) {
-                                  editiText('(');
-                                  return;
-                                }
-                                // returns when equal button is been pressed
-                                if (isClicked) {
-                                  resetAnimation();
-                                  var data = expressionResult;
-                                  mathExpressionController.clear();
-                                  editiText('${data}x(');
-                                }
-                                // returns when expression ends with operator
-                                // then number
-                                if (!mathExpression
-                                    .validateLastTwoExpression()) {
-                                  editiText(')');
-                                }
-
-                                if (regExpMatchEndsWithOperatorThenNumber
-                                    .hasMatch(mathExpression.format())) {
-                                  editiText(')');
-                                  return;
-                                }
-
-                                // returns when expression ends with operator
-                                if (regExpMatchEndWithOperator
-                                    .hasMatch(mathExpression)) {
-                                  editiText('(');
-                                  return;
-                                }
-
-                                // returns when expression ends with closed bracket
-                                if (regExpMatchEndWithClosedBracket
-                                    .hasMatch(mathExpression)) {
-                                  editiText('x(');
-
-                                  return;
-                                }
-
-                                // returns when expression ends with closed bracket
-                                if (regExpMatchEndWithNumber
-                                    .hasMatch(mathExpression.format())) {
-                                  editiText('x(');
-                                  return;
-                                }
-                              }
-
-                              setState(() {});
-                            },
-                            child: Text(
-                              gridItemData.buttonText,
-                              style: customFont(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: gridItemData.textColor),
-                            ),
-                          ),
-                        );
-                      },
-                    )),
-              ),
+                  width: width,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 3,
+                        child: Container(
+                          child: isHistroySelected
+                              ? Container(
+                                  alignment: Alignment.topRight,
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                        right: BorderSide(
+                                            color: Colors.grey, width: 0.2)),
+                                  ),
+                                  child: CalculationHistroy(
+                                    textEditingController:
+                                        mathExpressionController,
+                                  ))
+                              : GridView.count(
+                                  childAspectRatio: 1.25,
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 10,
+                                  padding: const EdgeInsets.only(
+                                    top: 5,
+                                    left: 5,
+                                    bottom: 5,
+                                  ),
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  children: List.generate(
+                                    buttonNumbersGrid.length,
+                                    (index) {
+                                      final gridItemData =
+                                          buttonNumbersGrid[index];
+                                      return CustomButton(
+                                        textEditingController:
+                                            mathExpressionController,
+                                        buttonData: gridItemData,
+                                        visibilityAnimationController:
+                                            _visibilityAnimationController,
+                                        positionAnimationController:
+                                            _positionAnimationController,
+                                        colorAnimationController:
+                                            _colorAnimationController,
+                                      );
+                                    },
+                                  )),
+                        ),
+                      ),
+                      Flexible(
+                        child: Container(
+                          child: GridView.count(
+                              childAspectRatio: 1.16,
+                              crossAxisCount: 1,
+                              mainAxisSpacing: 10,
+                              padding: const EdgeInsets.all(5),
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: List.generate(
+                                buttonOperatorsGrid.length,
+                                (index) {
+                                  final gridItemData =
+                                      buttonOperatorsGrid[index];
+                                  return CustomButton(
+                                    textEditingController:
+                                        mathExpressionController,
+                                    buttonData: gridItemData,
+                                    positionAnimationController:
+                                        _positionAnimationController,
+                                    visibilityAnimationController:
+                                        _visibilityAnimationController,
+                                    colorAnimationController:
+                                        _colorAnimationController,
+                                  );
+                                },
+                              )),
+                        ),
+                      ),
+                    ],
+                  )),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+void deleteText(CustomTextEditingController controller) {
+  var oldValue = controller.value;
+  int cursorPosition = oldValue.selection.start;
+  String newValueText = oldValue.text.substring(0, cursorPosition - 1) +
+      oldValue.text.substring(
+        cursorPosition,
+      );
+  var newValue = TextEditingValue(
+    text: newValueText,
+    selection: TextSelection.collapsed(offset: cursorPosition - 1),
+  );
+
+  var textData = newValue.text.formatToHundreads();
+  var newValue1 = newValue.copyWith(
+      text: textData,
+      selection: TextSelection.collapsed(
+        offset: textData.length,
+      ));
+  controller.value = newValue1;
 }
 
 void calculate({required String text, required BuildContext context}) {

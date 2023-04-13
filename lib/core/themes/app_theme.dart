@@ -25,10 +25,10 @@ class AppTheme {
         buttonColor: Colors.white,
       ),
       inputDecorationTheme: const InputDecorationTheme(
-        // border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(vertical: 8),
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(vertical: 10),
+        constraints: BoxConstraints.expand(),
         isDense: true,
-        helperMaxLines: 0,
       ),
       textTheme: TextTheme(
         titleSmall: customFont(),
