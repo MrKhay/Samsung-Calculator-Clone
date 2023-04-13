@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/constants/strings.dart';
+
 class CustomTextEditingController extends TextEditingController {
   final List<String> specialCharacters = ["+", "%", "-", "x", "÷"];
 
@@ -11,7 +13,7 @@ class CustomTextEditingController extends TextEditingController {
       required bool withComposing}) {
     List<String> textSegments = text.split(" ");
     final customStyle = GoogleFonts.nunito(
-        fontWeight: FontWeight.bold, fontSize: 30, color: Colors.green);
+        fontWeight: FontWeight.bold, fontSize: 30, color: primaryColor);
 
     List<TextSpan> textSpans = [];
     for (int i = 0; i < textSegments.length; i++) {

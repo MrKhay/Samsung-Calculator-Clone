@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Strings {}
@@ -63,3 +64,6 @@ final hundersFormatter = NumberFormat('#,##0', 'en_Us');
 const invalidFormat = 'Invalid Format Used';
 
 const digitGreaterThanNormal = 'Can\'t enter more than 15 digits.';
+const clearHistory = 'Clear History';
+
+const primaryColor = Color.fromRGBO(107, 172, 62, 1);
