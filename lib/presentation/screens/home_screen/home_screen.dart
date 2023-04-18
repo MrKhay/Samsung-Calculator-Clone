@@ -91,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _colorAnimationController.dispose();
     _visibilityAnimationController.dispose();
     mathExpressionController.dispose();
+    _mathResultController.dispose();
     super.dispose();
   }
 
@@ -110,9 +111,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     mathExpressionController.addListener(() {
       calculate(text: mathExpressionController.text, context: context);
 
-      if (mathExpressionController.text.isEmpty) {
-        setState(() {});
-      }
+      setState(() {});
     });
     _positionAnimationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -137,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Flexible(
                     flex: 5,
                     child: Container(
-                      // color: Colors.grey.withOpacity(0.2),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

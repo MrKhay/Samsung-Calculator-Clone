@@ -14,8 +14,6 @@ class CalculationHistoryBloc
             calculationHistoryData:
                 historyDataProvider.readAllData() as List<CalculationHistory>,
             isLoading: false)) {
-    print('Calles');
-    print(historyDataProvider.readAllData().length);
     on<CalculationHistoryEventLoadHistorys>((event, emit) async {
       emit(CalculationHistoryState(
         calculationHistoryData: state.calculationHistoryData,
@@ -54,6 +52,24 @@ class CalculationHistoryBloc
       ));
       await historyDataProvider.addData(event.calculationHistory);
 
+    if (state.calculationHistoryData.length > 30) {
+        final sizedHistoryData = state.calculationHistoryData
+            .getRange(state.calculationHistoryData.length - 30,
+                state.calculationHistoryData.length)
+            .toList();
+
+        for (var i = 0; i < state.calculationHistoryData.length; i++) {
+          if (i < state.calculationHistoryData.length - 30) {
+            historyDataProvider
+                .deleteData(state.calculationHistoryData[i]);
+          }
+        }
+
+        emit(CalculationHistoryState(
+          calculationHistoryData: sizedHistoryData,
+          isLoading: false,
+        ));
+      }
       final calculationHistoryData =
           historyDataProvider.readAllData() as List<CalculationHistory>;
       emit(CalculationHistoryState(

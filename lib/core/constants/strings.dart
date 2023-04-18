@@ -37,6 +37,7 @@ final regExpMatchEndsWithOpenBracket = RegExp(r'.*\($');
 // check if expression contains operators
 final regExpMatchContainsOperator = RegExp(r'([\+\-\x/\÷\%/*/÷])');
 
+
 // check if expression contains operators
 final regExpMatchDoesNotContainsOperator = RegExp(r'[^\+\-\x\÷/%]');
 

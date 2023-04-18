@@ -2,11 +2,11 @@ import 'constants/strings.dart';
 
 extension ValidExpression on String {
   bool validateExpressionLength() {
-    var expression = replaceAll(regExpMatchContainsBracketAndComma, '');
-    var expressionPart = expression.split(regExpMatchContainsOperator);
-    var isGreaterthanNormal = false;
+    final expression = replaceAll(regExpMatchContainsBracketAndComma, '');
+    final expressionPart = expression.split(regExpMatchContainsOperator);
+    bool isGreaterthanNormal = false;
 
-// returns when expressions does not operators
+// returns when expressions does not contain operators
     if (!contains(regExpMatchContainsOperator)) {
       isGreaterthanNormal = expression.length > 14;
     }
@@ -35,17 +35,17 @@ extension ValidExpression on String {
   }
 
   bool validateBrackets() {
-    var bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
-    var openBrackets = bracket.split('').where((element) => element == '(');
-    var closedBrackets = bracket.split('').where((element) => element == ')');
+    final bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
+    final openBrackets = bracket.split('').where((element) => element == '(');
+    final closedBrackets = bracket.split('').where((element) => element == ')');
 
     return openBrackets.length == closedBrackets.length;
   }
 
   bool validateNumberOfBrackets() {
-    var bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
-    var openBrackets = bracket.split('').where((element) => element == '(');
-    var closedBrackets = bracket.split('').where((element) => element == ')');
+    final bracket = replaceAll(regExpMatchContainsNumbersAndOperators, '');
+    final openBrackets = bracket.split('').where((element) => element == '(');
+    final closedBrackets = bracket.split('').where((element) => element == ')');
 
     return openBrackets.length == closedBrackets.length;
   }
@@ -69,10 +69,10 @@ extension ValidExpression on String {
 
   bool validateLastTwoExpression() {
     final data = split(regExpMatchContainsOperator);
-    var bracket = replaceAll(RegExp(r'([\+\-\x/\÷\%/*./÷/0-9])'), '');
-    var closedBrackets = bracket.split('').where((element) => element == ')');
-    var openedBrackets = bracket.split('').where((element) => element == '(');
-    var numOfClosingBrackets = 0;
+    final bracket = replaceAll(RegExp(r'([\+\-\x/\÷\%/*./÷/0-9])'), '');
+    final closedBrackets = bracket.split('').where((element) => element == ')');
+    final openedBrackets = bracket.split('').where((element) => element == '(');
+    int numOfClosingBrackets = 0;
 
     for (int i = 0; i < data.length; i++) {
       var part = data[i].splitExpression();
@@ -98,9 +98,9 @@ extension FormatExpression on String {
   }
 
   String formatExpressionWithDecimal() {
-    var expressionHolder = split('.');
-    var formattedExpression = hundersFormatter.format(
-        num.parse(expressionHolder[0].replaceAll(RegExp(r'([\,\(\)])'), '')));
+    final expressionHolder = split('.');
+    final formattedExpression = hundersFormatter.format(num.parse(
+        expressionHolder[0].replaceAll(regExpMatchConatainBrackets, '')));
 
     return '$formattedExpression.${expressionHolder[1]}';
   }
@@ -119,7 +119,7 @@ extension FormatExpression on String {
 
     List<String> formattedExpressionParts = [];
     List<String> formattedExpressionPartWithOperators = [];
-    var operatorsIndex = 0;
+    int operatorsIndex = 0;
 
     // returns if expression is empty
     if (isEmpty) {
