@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/strings.dart';
 
 class CustomTextEditingController extends TextEditingController {
+  CustomTextEditingController({super.text});
+
   final List<String> specialCharacters = ["+", "%", "-", "x", "÷"];
 
   @override
@@ -13,7 +15,9 @@ class CustomTextEditingController extends TextEditingController {
       required bool withComposing}) {
     List<String> textSegments = text.split(" ");
     final customStyle = GoogleFonts.nunito(
-        fontWeight: FontWeight.bold, fontSize: 30, color: primaryColor);
+        fontWeight: FontWeight.w700,
+        color: primaryColor,
+        fontSize: style!.fontSize);
 
     List<TextSpan> textSpans = [];
     for (int i = 0; i < textSegments.length; i++) {

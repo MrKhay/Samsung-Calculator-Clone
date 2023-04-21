@@ -30,13 +30,14 @@ final regExpMatchBeginsWithOperator = RegExp(r'(^[\+\-\x/\÷\%/*/÷])');
 
 // check if expression ends with operator then number
 final regExpMatchEndsWithOperatorThenNumber = RegExp(r'[\+\-\x/\÷\%\*/]\d+$');
+// check if expression ends with operator then euler
+final regExpMatchEndsWithOperatorThenEuler = RegExp(r'[\+\-\x/\÷\%\*/]\e+$');
 
 // check if expression ends with operator then number
 final regExpMatchEndsWithOpenBracket = RegExp(r'.*\($');
 
 // check if expression contains operators
 final regExpMatchContainsOperator = RegExp(r'([\+\-\x/\÷\%/*/÷])');
-
 
 // check if expression contains operators
 final regExpMatchDoesNotContainsOperator = RegExp(r'[^\+\-\x\÷/%]');

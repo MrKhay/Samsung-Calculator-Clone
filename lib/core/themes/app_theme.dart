@@ -7,8 +7,22 @@ class AppTheme {
   static final lightTheme = ThemeData(
     useMaterial3: true,
     primarySwatch: Colors.blue,
-    colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.red,
+      background: Colors.white,
+      brightness: Brightness.light,
+    ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
+    buttonTheme: const ButtonThemeData(
+      shape: CircleBorder(),
+      buttonColor: Colors.white,
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(vertical: 10),
+      constraints: BoxConstraints.expand(),
+      isDense: true,
+    ),
   );
 
   static final darkTheme = ThemeData(

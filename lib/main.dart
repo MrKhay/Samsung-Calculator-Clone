@@ -1,5 +1,6 @@
 import 'package:calculator/logic/bloc/calculation_history_bloc/bloc/calculation_history_bloc.dart';
 import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import 'package:calculator/logic/bloc/calculator_mode_bloc/calculatormode_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -28,16 +29,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final brightness = MediaQuery.of(context).platformBrightness;
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => CalculatorBloc()),
+        BlocProvider(create: (context) => CalculatorModeBloc()),
         BlocProvider<CalculationHistoryBloc>(
             create: (context) => CalculationHistoryBloc(
                 historyDataProvider: CalculationHistoryDataProvider())
               ..add(const CalculationHistoryEventLoadHistorys())),
       ],
       child: MaterialApp(
-        theme: AppTheme.darkTheme,
+        theme: AppTheme.lightTheme,
+        themeMode: ThemeMode.system,
         darkTheme: AppTheme.darkTheme,
         debugShowCheckedModeBanner: false,
         initialRoute: AppRouter.home,

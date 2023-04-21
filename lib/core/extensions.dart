@@ -97,6 +97,19 @@ extension FormatExpression on String {
     return replaceAll(',', '');
   }
 
+  String parseExpression() {
+    // contains formatted expression
+    var formattedExpression = '';
+
+    if (regExpMatchConatinNumber.hasMatch(this)) {
+      formattedExpression = hundersFormatter.format(num.parse(this));
+    } else {
+      formattedExpression = this;
+    }
+
+    return formattedExpression;
+  }
+
   String formatExpressionWithDecimal() {
     final expressionHolder = split('.');
     final formattedExpression = hundersFormatter.format(num.parse(
@@ -137,7 +150,7 @@ extension FormatExpression on String {
             if (formattedExpression.isNotEmpty) {
               final expressionPart = part.contains('.')
                   ? '(${part.formatExpressionWithDecimal()}'
-                  : '(${hundersFormatter.format(num.parse(formattedExpression.replaceAll(',', '')))}';
+                  : '(${formattedExpression.replaceAll(',', '').parseExpression()}';
               formattedExpressionParts.add(expressionPart);
             } else {
               formattedExpressionParts.add('(');
@@ -149,7 +162,7 @@ extension FormatExpression on String {
 
             final expressionPart = part.contains('.')
                 ? '${part.formatExpressionWithDecimal()})'
-                : '${hundersFormatter.format(num.parse(formattedExpression))})';
+                : '${formattedExpression.replaceAll(',', '').parseExpression()})';
             formattedExpressionParts.add(expressionPart);
           }
         } else if (part == '') {
@@ -157,8 +170,9 @@ extension FormatExpression on String {
         } else {
           final expressionPart = part.contains('.')
               ? part.formatExpressionWithDecimal()
-              : hundersFormatter.format(
-                  num.parse(part.replaceAll(RegExp(r'([\+\-\x/\,\÷\%])'), '')));
+              : part
+                  .replaceAll(RegExp(r'([\+\-\x/\,\÷\%])'), '')
+                  .parseExpression();
           formattedExpressionParts.add(expressionPart);
         }
       }
@@ -233,7 +247,7 @@ extension FormatExpression on String {
       } else if (part == '') {
         break;
       } else {
-        part = hundersFormatter.format(num.parse(part.replaceAll(',', '')));
+        part = part.replaceAll(',', '').parseExpression();
         formattedExpressionParts.add(part);
       }
     }

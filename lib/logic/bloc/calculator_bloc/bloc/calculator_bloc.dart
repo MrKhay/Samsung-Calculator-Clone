@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:bloc/bloc.dart';
 import 'package:calculator/core/constants/strings.dart';
 import 'package:equatable/equatable.dart';
@@ -33,6 +35,13 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
           .replaceAll('x', '*')
           .replaceAll('÷', '/');
 
+      // returns when expression is euler
+      if (event.expression == 'e') {
+        emit(CalculatorState(
+            result: calculateExpression(event.expression).toString()));
+        return;
+      }
+
       // if expression ends with an operator emit 0
       if (regExpMatchEndWithOperator.hasMatch(data) ||
           !regExpMatchContainsOperator.hasMatch(data) ||
@@ -50,7 +59,8 @@ String calculateExpression(String expression) {
   // convert expression into num and then calculate and emit result
   Parser parser = Parser();
 
-  Expression exp = parser.parse(expression.formatExpression());
+  Expression exp = parser
+      .parse(expression.replaceAll('e', math.e.toString()).formatExpression());
 
   num result = exp.evaluate(EvaluationType.REAL, ContextModel());
   if (result.remainder(1) == 0) {

@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/strings.dart';
 import '../../data/models/buttondata.dart';
 import '../../logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import '../../logic/bloc/calculator_mode_bloc/calculatormode_bloc.dart';
 import 'custom_font.dart';
 
 class CustomButton extends StatefulWidget {
@@ -17,6 +18,9 @@ class CustomButton extends StatefulWidget {
   final AnimationController positionAnimationController;
   final AnimationController colorAnimationController;
   final AnimationController visibilityAnimationController;
+  final double fontSize;
+  final ShapeBorder shape;
+  final double width;
 
   const CustomButton({
     Key? key,
@@ -25,6 +29,9 @@ class CustomButton extends StatefulWidget {
     required this.positionAnimationController,
     required this.colorAnimationController,
     required this.visibilityAnimationController,
+    this.fontSize = 26,
+    this.shape = const CircleBorder(),
+    this.width = 10,
   }) : super(key: key);
 
   @override
@@ -58,6 +65,7 @@ class CustomButtonState extends State<CustomButton>
     final buttonData = widget.buttonData;
     final mathExpressionController = widget.textEditingController;
     final expressionResult = context.watch<CalculatorBloc>().state.result;
+    final fontSize = widget.fontSize;
 
     void toggleScale() async {
       _animationController.forward();
@@ -67,6 +75,9 @@ class CustomButtonState extends State<CustomButton>
 
     return MaterialButton(
       color: buttonData.buttonText == '=' ? Colors.green : Colors.white10,
+      shape: widget.shape,
+      minWidth: widget.width,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
@@ -75,7 +86,7 @@ class CustomButtonState extends State<CustomButton>
             child: Text(
               widget.buttonData.buttonText,
               style: customFont(
-                  fontSize: 28,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                   color: buttonData.textColor),
             ),
@@ -95,191 +106,231 @@ class CustomButtonState extends State<CustomButton>
         //Add '+' to the equation and if '+' is already their dont add
         //If eqation has been calculated and user wants to add + again
         //set the result to the new eqation and add '+'
+        setState(() {
+          if (alritimeticOperators.contains(buttonData.buttonText)) {
+            // returns when expression contains same operator
 
-        if (alritimeticOperators.contains(buttonData.buttonText)) {
-          // returns when expression contains same operator
+            if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
+              showToast(invalidFormat);
+              return;
+            }
+            // retuns when expression is empty
+            if (mathExpression.isEmpty) {
+              showToast(invalidFormat);
+              return;
+            }
 
-          if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
-            showToast(invalidFormat);
-            return;
-          }
-          // retuns when expression is empty
-          if (mathExpression.isEmpty) {
-            showToast(invalidFormat);
-            return;
-          }
+            // returns when equals is clicked.. rest animation and
+            // add new operator to the expreesion
 
-          // returns when equals is clicked.. rest animation and
-          // add new operator to the expreesion
+            if (animationStatus) {
+              resetAnimation();
+              mathExpressionController.clear();
+              if (regExpMatchBeginsWithOperator.hasMatch(expressionResult)) {
+                // returns expression without operator
+                var data = expressionResult
+                    .split('')
+                    .getRange(1, expressionResult.length)
+                    .join('');
+                // returns only operator
+                var dataOperator =
+                    expressionResult.split('').getRange(0, 1).join('');
 
-          if (animationStatus) {
-            resetAnimation();
-            mathExpressionController.clear();
-            if (regExpMatchBeginsWithOperator.hasMatch(expressionResult)) {
-              // returns expression without operator
-              var data = expressionResult
-                  .split('')
-                  .getRange(1, expressionResult.length)
-                  .join('');
-              // returns only operator
-              var dataOperator =
-                  expressionResult.split('').getRange(0, 1).join('');
+                editiText('($dataOperator$data${buttonData.buttonText}',
+                    mathExpressionController);
+                return;
+              }
 
-              editiText('($dataOperator$data${buttonData.buttonText}',
+              editiText('$expressionResult${buttonData.buttonText}',
                   mathExpressionController);
               return;
             }
 
-            editiText('$expressionResult${buttonData.buttonText}',
-                mathExpressionController);
-            return;
-          }
-
-          // retunr when expression end s with brackte and operator is + ÷ % x
-          if (regExpMatchEndsWithOpenBracket.hasMatch(mathExpression)) {
-            if (buttonData.buttonText == '+' ||
-                buttonData.buttonText == 'x' ||
-                buttonData.buttonText == '÷' ||
-                buttonData.buttonText == '%') {
+            // retunr when expression end s with brackte and operator is + ÷ % x
+            if (regExpMatchEndsWithOpenBracket.hasMatch(mathExpression)) {
+              if (buttonData.buttonText == '+' ||
+                  buttonData.buttonText == 'x' ||
+                  buttonData.buttonText == '÷' ||
+                  buttonData.buttonText == '%') {
+                return;
+              }
+              editiText(buttonData.buttonText, mathExpressionController);
               return;
             }
             editiText(buttonData.buttonText, mathExpressionController);
-            return;
           }
-          editiText(buttonData.buttonText, mathExpressionController);
-        }
 
-        // returns when button text is = and expression is valid
-        if (buttonData.buttonText == '=') {
-          if (mathExpression.isValidExpression()) {
-            widget.positionAnimationController.forward();
-            widget.colorAnimationController.forward();
-            widget.visibilityAnimationController.forward();
-            context
-                .read<CalculationHistoryBloc>()
-                .add(CalculationHistoryEventAddHistory(
-                  calculationHistory: CalculationHistory(
-                      expression: mathExpressionController.text,
-                      expressionResult: expressionResult),
-                ));
-          }
-          // returns if expression ends with operator
-          if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
-            showToast(invalidFormat);
-            return;
-          }
-        }
-        if (buttonData.buttonText == '+/-') {
-          if (animationStatus) {
-            resetAnimation();
-            var data = expressionResult;
-            mathExpressionController.clear();
-            // check if data ends with operator
-
-            if (regExpMatchBeginsWithOperator.hasMatch(data)) {
-              // clears the operator and return value
-              var newData = data.replaceAll('-', '');
-              editiText(newData, mathExpressionController);
-            } else {
-              editiText('(-$data', mathExpressionController);
+          // returns when button text is = and expression is valid
+          if (buttonData.buttonText == '=') {
+            if (mathExpression.isValidExpression()) {
+              widget.positionAnimationController.forward();
+              widget.colorAnimationController.forward();
+              widget.visibilityAnimationController.forward();
+              context
+                  .read<CalculationHistoryBloc>()
+                  .add(CalculationHistoryEventAddHistory(
+                    calculationHistory: CalculationHistory(
+                        expression: mathExpressionController.text,
+                        expressionResult: expressionResult),
+                  ));
+            }
+            // returns if expression ends with operator
+            if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
+              showToast(invalidFormat);
+              return;
             }
           }
-          // return mathexpression is empty
-          if (mathExpression.isEmpty) {
-            editiText('(-', mathExpressionController);
-            return;
+          if (buttonData.buttonText == '+/-') {
+            if (animationStatus) {
+              resetAnimation();
+              var data = expressionResult;
+              mathExpressionController.clear();
+              // check if data ends with operator
+
+              if (regExpMatchBeginsWithOperator.hasMatch(data)) {
+                // clears the operator and return value
+                var newData = data.replaceAll('-', '');
+                editiText(newData, mathExpressionController);
+              } else {
+                editiText('(-$data', mathExpressionController);
+              }
+            }
+            // return mathexpression is empty
+            if (mathExpression.isEmpty) {
+              editiText('(-', mathExpressionController);
+              return;
+            }
+
+            // return ends with closed baracket
+            if (regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
+              editiText('x(-', mathExpressionController);
+              return;
+            }
           }
 
-          // return ends with closed baracket
-          if (regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
-            editiText('x(-', mathExpressionController);
-            return;
-          }
-        }
+          // returns when input is 0-9
+          if (integerNumbers.contains(buttonData.buttonText)) {
+            // returns when animation has been ran
+            if (animationStatus) {
+              resetAnimation();
+              mathExpressionController.clear();
+              editiText(buttonData.buttonText, mathExpressionController);
+              return;
+            }
+            // returns when expression length is greater than 15
+            if (mathExpression.validateExpressionLength()) {
+              showToast(digitGreaterThanNormal);
 
-        // returns when input is 0-9
-        if (integerNumbers.contains(buttonData.buttonText)) {
-          // returns when animation has been ran
-          if (animationStatus) {
+              return;
+            }
+
+            editiText(buttonData.buttonText, mathExpressionController);
+          }
+
+          // returns when is button text is C
+          if (buttonData.buttonText == 'C') {
             resetAnimation();
             mathExpressionController.clear();
+          }
+
+          // retuns when button is .
+          if (buttonData.buttonText == '.') {
+            if (mathExpression.isEmpty) {
+              editiText('0.', mathExpressionController);
+            }
             editiText(buttonData.buttonText, mathExpressionController);
             return;
           }
-          // returns when expression length is greater than 15
-          if (mathExpression.validateExpressionLength()) {
-            showToast(digitGreaterThanNormal);
 
-            return;
+          // returns if button text is ( )
+          if (buttonData.buttonText == '( )') {
+            // returns if expression is empty
+            if (mathExpression.isEmpty) {
+              editiText('(', mathExpressionController);
+              return;
+            }
+            // returns when equal button is been pressed
+            if (animationStatus) {
+              resetAnimation();
+              var data = expressionResult;
+              mathExpressionController.clear();
+              editiText('${data}x(', mathExpressionController);
+              return;
+            }
+            // returns when expression ends with operator
+            // then number
+            if (!mathExpression.validateLastTwoExpression()) {
+              editiText(')', mathExpressionController);
+              return;
+            }
+
+            // returns when expression ends with operator
+            if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
+              editiText('(', mathExpressionController);
+              return;
+            }
+
+            // returns when expression ends with closed bracket
+            if (regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
+              editiText('x(', mathExpressionController);
+
+              return;
+            }
+
+            // returns when expression ends with closed bracket
+            if (regExpMatchEndWithNumber.hasMatch(mathExpression.format())) {
+              editiText('x(', mathExpressionController);
+              return;
+            }
+            if (regExpMatchEndsWithOperatorThenNumber
+                    .hasMatch(mathExpression.format()) ||
+                regExpMatchEndsWithOperatorThenEuler.hasMatch(mathExpression) &&
+                    regExpMatchConatainOpenBracket.hasMatch(mathExpression)) {
+              editiText(')', mathExpressionController);
+              return;
+            }
           }
 
-          editiText(buttonData.buttonText, mathExpressionController);
-        }
-
-        // returns when is button text is C
-        if (buttonData.buttonText == 'C') {
-          resetAnimation();
-          mathExpressionController.clear();
-        }
-
-        // retuns when button is .
-        if (buttonData.buttonText == '.') {
-          if (mathExpression.isEmpty) {
-            editiText('0.', mathExpressionController);
-          }
-          editiText(buttonData.buttonText, mathExpressionController);
-          return;
-        }
-
-        // returns if button text is ( )
-        if (buttonData.buttonText == '( )') {
-          // returns if expression is empty
-          if (mathExpression.isEmpty) {
-            editiText('(', mathExpressionController);
-            return;
-          }
-          // returns when equal button is been pressed
-          if (animationStatus) {
-            resetAnimation();
-            var data = expressionResult;
-            mathExpressionController.clear();
-            editiText('${data}x(', mathExpressionController);
-            return;
-          }
-          // returns when expression ends with operator
-          // then number
-          if (!mathExpression.validateLastTwoExpression()) {
-            editiText(')', mathExpressionController);
-            return;
+          if (buttonData.buttonText == '⇄') {
+            context
+                .read<CalculatorModeBloc>()
+                .add(CalculatormodeEventToggleLogInverse());
           }
 
-          // returns when expression ends with operator
-          if (regExpMatchEndWithOperator.hasMatch(mathExpression)) {
-            editiText('(', mathExpressionController);
-            return;
-          }
+          if (buttonData.buttonText == 'e') {
+            // returns when expression is empty
+            if (mathExpressionController.text.isEmpty) {
+              editiText('e', mathExpressionController);
+              return;
+            }
 
-          // returns when expression ends with closed bracket
-          if (regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
-            editiText('x(', mathExpressionController);
+            // returns when expression ends with operartor
+            if (regExpMatchEndWithOperator
+                .hasMatch(mathExpressionController.text)) {
+              editiText('e', mathExpressionController);
+              return;
+            }
+            // returns when expression ends with opended bracket
+            if (regExpMatchEndsWithOpenBracket
+                .hasMatch(mathExpressionController.text)) {
+              editiText('e', mathExpressionController);
+              return;
+            }
+            // returns when expression ends with closed baracket
+            if (regExpMatchEndWithClosedBracket
+                .hasMatch(mathExpressionController.text)) {
+              editiText('e', mathExpressionController);
+              return;
+            }
 
-            return;
+            // returns when expression doesnt end with operator
+            if (!regExpMatchEndWithOperator
+                .hasMatch(mathExpressionController.text)) {
+              editiText('xe', mathExpressionController);
+              return;
+            }
           }
-
-          // returns when expression ends with closed bracket
-          if (regExpMatchEndWithNumber.hasMatch(mathExpression.format())) {
-            editiText('x(', mathExpressionController);
-            return;
-          }
-          if (regExpMatchEndsWithOperatorThenNumber
-                  .hasMatch(mathExpression.format()) &&
-              regExpMatchConatainOpenBracket.hasMatch(mathExpression)) {
-            editiText(')', mathExpressionController);
-            return;
-          }
-        }
-
-        setState(() {});
+        });
       },
     );
   }

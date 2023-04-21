@@ -108,8 +108,7 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        height: height * 0.1,
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
