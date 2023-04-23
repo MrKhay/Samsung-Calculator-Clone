@@ -15,9 +15,9 @@ class CalculatorEventAddition implements CalculatorEvent {
 }
 
 @immutable
-class CalculatorEventSolveEquation implements CalculatorEvent {
+class CalculatorEvaluateSolveEquation implements CalculatorEvent {
   final String expression;
-  const CalculatorEventSolveEquation({required this.expression});
+  const CalculatorEvaluateSolveEquation({required this.expression});
 }
 
 @immutable

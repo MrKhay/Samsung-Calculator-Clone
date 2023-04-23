@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final Animation<Color> _animationColor;
   late final Animation<double> _animationScale;
   late final Animation<double> _animationVisibility;
-  late final CustomTextEditingController mathExpressionController;
+  late final TextEditingController mathExpressionController;
   late final TextEditingController _mathResultController;
   FocusNode mathResultFocusNode = FocusNode();
   bool isHistroyPanelSelected = false;
@@ -130,12 +130,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       setState(() {});
     });
     _positionAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        mathResultFocusNode.requestFocus();
-      }
-      if (status == AnimationStatus.forward) {
-        setState(() {});
-      }
+      setState(() {
+        if (status == AnimationStatus.completed) {
+          mathResultFocusNode.requestFocus();
+        }
+      });
     });
 
     return SafeArea(
@@ -233,12 +232,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                           controller: _mathResultController,
                                           textAlign: TextAlign.end,
                                           enabled: animationStatus,
-                                          // focusNode: mathResultFocusNode,
+                                          focusNode: mathResultFocusNode,
                                           autofocus: true,
                                           keyboardType: TextInputType.none,
                                           cursorColor: Colors.greenAccent,
-                                          cursorWidth: 0.8,
-
                                           magnifierConfiguration:
                                               TextMagnifierConfiguration
                                                   .disabled,
@@ -511,11 +508,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                           magnifierConfiguration:
                                               TextMagnifierConfiguration
                                                   .disabled,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.allow(
-                                              RegExp("[0-9]"),
-                                            ),
-                                          ],
+
                                           style: customFont(
                                               color: _animationColor.value,
                                               fontWeight: FontWeight.bold,
@@ -717,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
-void deleteText(CustomTextEditingController controller) {
+void deleteText(TextEditingController controller) {
   var oldValue = controller.value;
   int cursorPosition = oldValue.selection.start;
   String newValueText = oldValue.text.substring(0, cursorPosition - 1) +
@@ -741,7 +734,7 @@ void deleteText(CustomTextEditingController controller) {
 void calculate({required String text, required BuildContext context}) {
   context
       .read<CalculatorBloc>()
-      .add(CalculatorEventSolveEquation(expression: text));
+      .add(CalculatorEvaluateSolveEquation(expression: text));
 }
 
 // replaces ending operator with new one

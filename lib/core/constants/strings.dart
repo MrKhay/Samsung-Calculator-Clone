@@ -22,11 +22,21 @@ final regExpMatchEndWithClosedBracket = RegExp(r'\)$');
 // check if expression start with an bracket
 final regExpMatchBeginsWithOpenBracket = RegExp(r'^\(');
 
+// check if expression start with an bracket
+final regExpMatchEndsWithOpenParenthesisThenNumberThenOperatorThenNumber =
+    RegExp(r'\(\d+(\.\d+)?[-+*/%x]\d+(\.\d+)?');
+
 // check if expression start with an operator
 final regExpMatchBeginsWithOperator = RegExp(r'(^[\+\-\x/\÷\%/*/÷])');
 
 // check if expression ends with operator then number
 // final regExpMatchEndsWithOperatorThenNumber = RegExp(r'(^[\+\-\x/\÷\%/*/÷])');
+
+// check if only number decimal or euler
+final regExpMatchOnlyNumbersEulerAndDecimal = RegExp('[^0-9\\.\\e]+');
+
+// check if only non numbers
+final regExpMatchOnlyNonNumbers = RegExp(r'[^\d\s\e\.\,]+');
 
 // check if expression ends with operator then number
 final regExpMatchEndsWithOperatorThenNumber = RegExp(r'[\+\-\x/\÷\%\*/]\d+$');
@@ -36,8 +46,19 @@ final regExpMatchEndsWithOperatorThenEuler = RegExp(r'[\+\-\x/\÷\%\*/]\e+$');
 // check if expression ends with operator then number
 final regExpMatchEndsWithOpenBracket = RegExp(r'.*\($');
 
+// check if expression ends with operator then number
+final regExpMatchEndsWithEulerOrPie = RegExp(r'[𝝅/e/!]$');
+
 // check if expression contains operators
 final regExpMatchContainsOperator = RegExp(r'([\+\-\x/\÷\%/*/÷])');
+
+// check if expression contains log
+final regExpMatchContainsLogFunction =
+    RegExp(r'([sin|cos|tan|asin|acos|atan])');
+
+// check if expression ends with sin..tan followed by ( then number then optional )
+final regExpMatchEndsWithNumberThenTrigoFunctionThenOptionalClosingParenthesis =
+    RegExp(r'[sin|cos|tan|asin|acos|atan|√]\(\d+(\.\d+)?\)?$');
 
 // check if expression contains operators
 final regExpMatchDoesNotContainsOperator = RegExp(r'[^\+\-\x\÷/%]');

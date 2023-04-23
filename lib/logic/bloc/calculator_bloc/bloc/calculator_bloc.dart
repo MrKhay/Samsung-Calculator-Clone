@@ -22,7 +22,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       emit(CalculatorState(result: result.toString()));
     });
 
-    on<CalculatorEventSolveEquation>((event, emit) {
+    on<CalculatorEvaluateSolveEquation>((event, emit) {
       if (event.expression.isEmpty) {
         emit(const CalculatorState(result: ''));
         return;
@@ -36,7 +36,28 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
           .replaceAll('÷', '/');
 
       // returns when expression is euler
-      if (event.expression == 'e') {
+      if (regExpMatchEndsWithEulerOrPie.hasMatch(event.expression)) {
+        emit(CalculatorState(
+            result: calculateExpression(event.expression).toString()));
+        return;
+      }
+
+      // // returns when expression ends with number then trigometric function
+      // if (regExpMatchEndsWithNumberThenTrigoFunctionThenOptionalClosingParenthesis
+      //     .hasMatch(event.expression)) {
+      //   emit(CalculatorState(
+      //       result: calculateExpression(event.expression).toString()));
+      //   return;
+      // }
+
+      // returns when expression ends with number then trigometric function
+      if (regExpMatchEndWithNumber.hasMatch(event.expression)) {
+        emit(CalculatorState(
+            result: calculateExpression(event.expression).toString()));
+        return;
+      }
+
+      if (regExpMatchEndWithClosedBracket.hasMatch(event.expression)) {
         emit(CalculatorState(
             result: calculateExpression(event.expression).toString()));
         return;
@@ -55,12 +76,15 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   }
 }
 
+//TODO Find a way to catch error
 String calculateExpression(String expression) {
   // convert expression into num and then calculate and emit result
   Parser parser = Parser();
 
-  Expression exp = parser
-      .parse(expression.replaceAll('e', math.e.toString()).formatExpression());
+  print(
+      'Expression: ${expression.formatAdvancedOperators().formatExpression()}');
+  Expression exp =
+      parser.parse(expression.formatAdvancedOperators().formatExpression());
 
   num result = exp.evaluate(EvaluationType.REAL, ContextModel());
   if (result.remainder(1) == 0) {
@@ -87,6 +111,21 @@ extension FormatExpression on String {
         expression = '$expression)';
       }
     }
+    return expression;
+  }
+
+  String formatAdvancedOperators() {
+    var expression = replaceAll('asin', 'arcsin')
+        .replaceAll('atan', 'arctan')
+        .replaceAll('acos', 'arccos')
+        .replaceAll('√', 'sqrt')
+        .replaceAll('log', 'log10')
+        .replaceAll('x', '*')
+        .replaceAll('ln', 'loge')
+        .replaceAll('𝝅', math.pi.toString())
+        .replaceAll(',', '')
+        .replaceAll('e', math.e.toString());
+
     return expression;
   }
 }

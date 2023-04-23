@@ -2,14 +2,13 @@ import 'package:calculator/core/extensions.dart';
 import 'package:calculator/logic/bloc/calculation_history_bloc/bloc/calculation_history_bloc.dart';
 import 'package:calculator/presentation/common_widgets/custom_button.dart';
 import 'package:calculator/presentation/common_widgets/custom_font.dart';
-import 'package:calculator/presentation/screens/home_screen/widgets/custom_textcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/strings.dart';
 import '../../../../data/models/calculation_history.dart';
 
 class CalculationHistroy extends StatefulWidget {
-  final CustomTextEditingController textEditingController;
+  final TextEditingController textEditingController;
   const CalculationHistroy({Key? key, required this.textEditingController})
       : super(key: key);
 

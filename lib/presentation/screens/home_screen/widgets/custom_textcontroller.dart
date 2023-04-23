@@ -6,15 +6,14 @@ import '../../../../core/constants/strings.dart';
 class CustomTextEditingController extends TextEditingController {
   CustomTextEditingController({super.text});
 
-  final List<String> specialCharacters = ["+", "%", "-", "x", "÷"];
-
   @override
   TextSpan buildTextSpan(
       {required BuildContext context,
       TextStyle? style,
       required bool withComposing}) {
+    final List<String> specialCharacters = ["+", "%", "-", "x", "÷", "^"];
     List<String> textSegments = text.split(" ");
-    final customStyle = GoogleFonts.nunito(
+    final customFontStyle = GoogleFonts.nunito(
         fontWeight: FontWeight.w700,
         color: primaryColor,
         fontSize: style!.fontSize);
@@ -23,7 +22,7 @@ class CustomTextEditingController extends TextEditingController {
     for (int i = 0; i < textSegments.length; i++) {
       String segment = textSegments[i];
       if (specialCharacters.contains(segment)) {
-        textSpans.add(TextSpan(text: segment, style: customStyle));
+        textSpans.add(TextSpan(text: segment, style: customFontStyle));
       } else {
         int index = 0;
         while (index < segment.length) {
@@ -47,7 +46,7 @@ class CustomTextEditingController extends TextEditingController {
             }
             String specialChar =
                 segment.substring(specialCharIndex, specialCharIndex + 1);
-            textSpans.add(TextSpan(text: specialChar, style: customStyle));
+            textSpans.add(TextSpan(text: specialChar, style: customFontStyle));
             index = specialCharIndex + 1;
           }
         }
@@ -57,6 +56,6 @@ class CustomTextEditingController extends TextEditingController {
       }
     }
 
-    return TextSpan(children: textSpans);
+    return TextSpan(children: textSpans, style: style);
   }
 }

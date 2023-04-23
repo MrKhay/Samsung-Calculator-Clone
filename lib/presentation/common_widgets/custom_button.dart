@@ -3,7 +3,6 @@ import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/calculation_history.dart';
 import 'package:calculator/logic/bloc/calculation_history_bloc/bloc/calculation_history_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:calculator/presentation/screens/home_screen/widgets/custom_textcontroller.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/strings.dart';
@@ -13,7 +12,7 @@ import '../../logic/bloc/calculator_mode_bloc/calculatormode_bloc.dart';
 import 'custom_font.dart';
 
 class CustomButton extends StatefulWidget {
-  final CustomTextEditingController textEditingController;
+  final TextEditingController textEditingController;
   final ButtonData buttonData;
   final AnimationController positionAnimationController;
   final AnimationController colorAnimationController;
@@ -224,6 +223,11 @@ class CustomButtonState extends State<CustomButton>
               return;
             }
 
+            if (regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
+              editiText('x${buttonData.buttonText}', mathExpressionController);
+              return;
+            }
+
             editiText(buttonData.buttonText, mathExpressionController);
           }
 
@@ -249,6 +253,21 @@ class CustomButtonState extends State<CustomButton>
               editiText('(', mathExpressionController);
               return;
             }
+
+            // returns when ends with sin..tan then ( then 0..9
+            if (regExpMatchEndsWithNumberThenTrigoFunctionThenOptionalClosingParenthesis
+                .hasMatch(mathExpression)) {
+              editiText(')', mathExpressionController);
+              return;
+            }
+
+            // returns when ends operator then number
+            if (regExpMatchEndsWithOpenParenthesisThenNumberThenOperatorThenNumber
+                .hasMatch(mathExpression)) {
+              editiText(')', mathExpressionController);
+              return;
+            }
+
             // returns when equal button is been pressed
             if (animationStatus) {
               resetAnimation();
@@ -330,6 +349,109 @@ class CustomButtonState extends State<CustomButton>
               return;
             }
           }
+
+          if (buttonData.buttonText == 'cos') {
+            editiText('cos(', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'sin') {
+            editiText('sin(', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'tan') {
+            editiText('tan(', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'sin⁻¹') {
+            editiText('asin(', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'cos⁻¹') {
+            editiText('acos(', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'tan⁻¹') {
+            editiText('atan(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == '√') {
+            editiText('√(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == 'ln') {
+            editiText('ln(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == 'log') {
+            editiText('log(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == '1/x') {
+            editiText('1÷', mathExpressionController);
+            return;
+          }
+          if (buttonData.buttonText == 'eˣ') {
+            editiText('e^(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == 'x²') {
+            if (regExpMatchEndWithNumber.hasMatch(mathExpression)) {
+              editiText('^(2)', mathExpressionController);
+            }
+            showToast(invalidFormat);
+            return;
+          }
+
+          if (buttonData.buttonText == 'xʸ') {
+            if (regExpMatchEndWithNumber.hasMatch(mathExpression)) {
+              editiText('^(', mathExpressionController);
+            }
+            showToast(invalidFormat);
+            return;
+          }
+
+          if (buttonData.buttonText == '|x|') {
+            editiText('abs(', mathExpressionController);
+
+            return;
+          }
+
+          if (buttonData.buttonText == '𝝅') {
+            editiText('𝝅', mathExpressionController);
+
+            return;
+          }
+
+          if (buttonData.buttonText == '2ˣ') {
+            editiText('2^(', mathExpressionController);
+
+            return;
+          }
+
+          if (buttonData.buttonText == 'x³') {
+            if (regExpMatchEndWithNumber.hasMatch(mathExpression) ||
+                regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
+              editiText('^(3)', mathExpressionController);
+            }
+
+            showToast(invalidFormat);
+            return;
+          }
+
+          if (buttonData.buttonText == 'x!') {
+            if (regExpMatchEndWithNumber.hasMatch(mathExpression) ||
+                regExpMatchEndWithClosedBracket.hasMatch(mathExpression)) {
+              editiText('!', mathExpressionController);
+            }
+
+            showToast(invalidFormat);
+            return;
+          }
         });
       },
     );
@@ -342,7 +464,7 @@ class CustomButtonState extends State<CustomButton>
   }
 }
 
-void editiText(String data, CustomTextEditingController controller) {
+void editiText(String data, TextEditingController controller) {
   final mathExpression = controller.value;
   final newMathExpression = TextEditingValue(
       text: mathExpression.text.replaceRange(
