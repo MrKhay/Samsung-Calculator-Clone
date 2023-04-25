@@ -52,9 +52,20 @@ final regExpMatchEndsWithEulerOrPie = RegExp(r'[𝝅/e/!]$');
 // check if expression contains operators
 final regExpMatchContainsOperator = RegExp(r'([\+\-\x/\÷\%/*/÷])');
 
+//  check if expression contains huperbolictangent then number then
+//optional operator then optional number then optional closing brackt
+final regExpMatchHyperbolicTanThenOpenParentesisThenNumber =
+    RegExp(r'(tanh|sinh|cosh|atanh|asinh|acosh|cbrt)\(\d+(\.\d+)?\)?');
+
+// check if expression only non numericals and decimals point
+final regExpMatchNonNumericalValueAndDecimalPoint = RegExp(r'[^0-9\.]+');
+
+// check if expression contains only numerics and deciaml point
+final regExpMatchNumericalAndDecimalPoint = RegExp(r'[a-zA-Z]');
+
 // check if expression contains log
 final regExpMatchContainsLogFunction =
-    RegExp(r'([sin|cos|tan|asin|acos|atan])');
+    RegExp(r'([sin|cos|tan|asin|acos|atan|tanh|sinh|cosh|atanh|asinh|acosh])');
 
 // check if expression ends with sin..tan followed by ( then number then optional )
 final regExpMatchEndsWithNumberThenTrigoFunctionThenOptionalClosingParenthesis =

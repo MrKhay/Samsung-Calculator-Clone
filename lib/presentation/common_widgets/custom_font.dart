@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,10 +10,12 @@ TextStyle customFont({
   Color? color = Colors.white,
 }) {
   return GoogleFonts.nunito(
-    fontSize: fontSize,
-    fontWeight: fontWeight,
-    color: color,
-  );
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      fontFeatures: [
+        const FontFeature.superscripts(),
+      ]);
 }
 
 void showToast(String text) {

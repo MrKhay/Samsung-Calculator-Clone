@@ -104,7 +104,6 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
 
   Widget historyTile(
       CalculationHistory calculationHistory, BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),

@@ -50,7 +50,15 @@ class CalculatorEventMultiplication implements CalculatorEvent {
   });
 }
 
-@immutable
 class CalculatorEventReset implements CalculatorEvent {
   const CalculatorEventReset();
+}
+
+class CalculatorEventToggleLogInverse implements CalculatorEvent {
+  const CalculatorEventToggleLogInverse();
+}
+
+class CalculatorEventToggleLogRad implements CalculatorEvent {
+  final String mathExpression;
+  const CalculatorEventToggleLogRad({required this.mathExpression});
 }

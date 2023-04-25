@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/strings.dart';
 import '../../data/models/buttondata.dart';
 import '../../logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
-import '../../logic/bloc/calculator_mode_bloc/calculatormode_bloc.dart';
 import 'custom_font.dart';
 
 class CustomButton extends StatefulWidget {
@@ -81,15 +80,14 @@ class CustomButtonState extends State<CustomButton>
         animation: _scaleAnimation,
         builder: (context, child) {
           return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Text(
-              widget.buttonData.buttonText,
-              style: customFont(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: buttonData.textColor),
-            ),
-          );
+              scale: _scaleAnimation.value,
+              child: Text(
+                widget.buttonData.buttonText,
+                style: customFont(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: buttonData.textColor),
+              ));
         },
       ),
       onPressed: () {
@@ -312,8 +310,8 @@ class CustomButtonState extends State<CustomButton>
 
           if (buttonData.buttonText == '⇄') {
             context
-                .read<CalculatorModeBloc>()
-                .add(CalculatormodeEventToggleLogInverse());
+                .read<CalculatorBloc>()
+                .add(const CalculatorEventToggleLogInverse());
           }
 
           if (buttonData.buttonText == 'e') {
@@ -450,6 +448,52 @@ class CustomButtonState extends State<CustomButton>
             }
 
             showToast(invalidFormat);
+            return;
+          }
+          if (buttonData.buttonText == 'sinh') {
+            editiText('sinh(', mathExpressionController);
+
+            return;
+          }
+          if (buttonData.buttonText == 'cosh') {
+            editiText('cosh(', mathExpressionController);
+
+            return;
+          }
+          if (buttonData.buttonText == 'tanh') {
+            editiText('tanh(', mathExpressionController);
+
+            return;
+          }
+
+          if (buttonData.buttonText == 'sinh⁻¹') {
+            editiText('asinh(', mathExpressionController);
+
+            return;
+          }
+          if (buttonData.buttonText == 'cosh⁻¹') {
+            editiText('acosh(', mathExpressionController);
+
+            return;
+          }
+          if (buttonData.buttonText == 'tanh⁻¹') {
+            editiText('atanh(', mathExpressionController);
+
+            return;
+          }
+          if (buttonData.buttonText == '³√') {
+            editiText('cbrt(', mathExpressionController);
+            return;
+          }
+
+          if (buttonData.buttonText == 'Rad') {
+            context.read<CalculatorBloc>().add(
+                CalculatorEventToggleLogRad(mathExpression: mathExpression));
+            return;
+          }
+          if (buttonData.buttonText == 'Deg') {
+            context.read<CalculatorBloc>().add(
+                CalculatorEventToggleLogRad(mathExpression: mathExpression));
             return;
           }
         });

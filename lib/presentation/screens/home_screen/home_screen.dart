@@ -1,7 +1,6 @@
 import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/buttondata.dart';
 import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
-import 'package:calculator/logic/bloc/calculator_mode_bloc/calculatormode_bloc.dart';
 import 'package:calculator/presentation/screens/home_screen/widgets/calculation_histroy.dart';
 import 'package:calculator/presentation/screens/home_screen/widgets/custom_textcontroller.dart';
 import 'package:flutter/material.dart';
@@ -118,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final expressionResult = context.watch<CalculatorBloc>().state.result;
     final animationStatus =
@@ -432,97 +430,133 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               Flexible(
                 flex: 5,
-                child: Container(
-                  // color: Colors.grey.withOpacity(0.2),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _animationVisibility,
-                        builder: (context, child) => Visibility(
-                          visible: _visibilityAnimationController.value == 1
-                              ? false
-                              : true,
-                          child: Expanded(
-                            flex: 4,
-                            child: Container(
-                              // color: Colors.amber,
-                              alignment: Alignment.topRight,
-                              padding:
-                                  const EdgeInsets.only(right: 40, top: 10),
-                              child: TextField(
-                                textAlign: TextAlign.end,
-                                autofocus: true,
-                                scrollPhysics:
-                                    const AlwaysScrollableScrollPhysics(),
-                                controller: mathExpressionController,
-                                keyboardType: TextInputType.none,
-                                cursorColor: Colors.greenAccent,
-                                maxLines: null,
-                                minLines: null,
-                                expands: true,
-                                magnifierConfiguration:
-                                    TextMagnifierConfiguration.disabled,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp("[0-9]"),
-                                  ),
-                                ],
-                                style: customFont(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.white),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BlocBuilder<CalculatorBloc, CalculatorState>(
+                      builder: (context, state) {
+                        return Visibility(
+                          visible: state.isLogRad,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 30),
+                            child: Text('Rad',
+                                style: customFont(fontWeight: FontWeight.bold)),
+                          ),
+                        );
+                      },
+                    ),
+                    Flexible(
+                      child: Container(
+                        // color: Colors.grey.withOpacity(0.2),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AnimatedBuilder(
+                              animation: _animationVisibility,
+                              builder: (context, child) => Visibility(
+                                visible:
+                                    _visibilityAnimationController.value == 1
+                                        ? false
+                                        : true,
+                                child: Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                      // color: Colors.amber,
+                                      alignment: Alignment.topRight,
+                                      padding: const EdgeInsets.only(
+                                          right: 40, top: 10),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: TextField(
+                                              textAlign: TextAlign.end,
+                                              autofocus: true,
+                                              scrollPhysics:
+                                                  const AlwaysScrollableScrollPhysics(),
+                                              controller:
+                                                  mathExpressionController,
+                                              keyboardType: TextInputType.none,
+                                              cursorColor: Colors.greenAccent,
+                                              maxLines: null,
+                                              minLines: null,
+                                              expands: true,
+                                              magnifierConfiguration:
+                                                  TextMagnifierConfiguration
+                                                      .disabled,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .allow(
+                                                  RegExp("[0-9]"),
+                                                ),
+                                              ],
+                                              style: customFont(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 40, top: 10),
-                          width: width,
-                          child: AlignTransition(
-                            alignment: _animationPosition,
-                            child: ScaleTransition(
-                              scale: _animationScale,
-                              alignment: Alignment.topRight,
-                              child: AnimatedBuilder(
-                                  animation: _animationColor,
-                                  builder: (context, child) {
-                                    return BlocBuilder<CalculatorBloc,
-                                        CalculatorState>(
-                                      builder: (context, state) {
-                                        _mathResultController.text =
-                                            state.result.formatNum();
-                                        return TextField(
-                                          controller: _mathResultController,
-                                          textAlign: TextAlign.end,
-                                          enabled: animationStatus,
-                                          // focusNode: mathResultFocusNode,
-                                          autofocus: true,
-                                          keyboardType: TextInputType.none,
-                                          cursorColor: Colors.greenAccent,
-                                          cursorWidth: 0.8,
+                            Flexible(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(right: 40, top: 10),
+                                width: width,
+                                child: AlignTransition(
+                                  alignment: _animationPosition,
+                                  child: ScaleTransition(
+                                    scale: _animationScale,
+                                    alignment: Alignment.topRight,
+                                    child: AnimatedBuilder(
+                                        animation: _animationColor,
+                                        builder: (context, child) {
+                                          return BlocBuilder<CalculatorBloc,
+                                              CalculatorState>(
+                                            builder: (context, state) {
+                                              _mathResultController.text =
+                                                  state.result.formatNum();
+                                              return TextField(
+                                                controller:
+                                                    _mathResultController,
+                                                textAlign: TextAlign.end,
+                                                enabled: animationStatus,
+                                                // focusNode: mathResultFocusNode,
+                                                autofocus: true,
+                                                keyboardType:
+                                                    TextInputType.none,
+                                                cursorColor: Colors.greenAccent,
+                                                cursorWidth: 0.8,
 
-                                          magnifierConfiguration:
-                                              TextMagnifierConfiguration
-                                                  .disabled,
+                                                magnifierConfiguration:
+                                                    TextMagnifierConfiguration
+                                                        .disabled,
 
-                                          style: customFont(
-                                              color: _animationColor.value,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15),
-                                        );
-                                      },
-                                    );
-                                  }),
+                                                style: customFont(
+                                                    color:
+                                                        _animationColor.value,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15),
+                                              );
+                                            },
+                                          );
+                                        }),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               Flexible(
@@ -624,9 +658,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               child: CalculationHistroy(
                                 textEditingController: mathExpressionController,
                               ))
-                          : BlocBuilder<CalculatorModeBloc,
-                              CalculatorModeState>(builder: (context, state) {
+                          : BlocBuilder<CalculatorBloc, CalculatorState>(
+                              builder: (context, state) {
                               final isLogInverse = state.isLogInverseMode;
+                              final inverseLogGridData = state.isLogRad
+                                  ? buttonNegativeAdvancedOperatorsDegGrid
+                                  : buttonNegativeAdvancedOperatorsGrid;
+                              final logGridData = state.isLogRad
+                                  ? buttonAdvancedOperatorsDegGrid
+                                  : buttonAdvancedOperatorsGrid;
                               return GridView.count(
                                   childAspectRatio: 2.9,
                                   crossAxisCount: 3,
@@ -640,14 +680,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   physics: const NeverScrollableScrollPhysics(),
                                   children: List.generate(
                                     isLogInverse
-                                        ? buttonNegativeAdvancedOperatorsGrid
-                                            .length
-                                        : buttonAdvancedOperatorsGrid.length,
+                                        ? inverseLogGridData.length
+                                        : logGridData.length,
                                     (index) {
-                                      final gridItemData = isLogInverse
-                                          ? buttonNegativeAdvancedOperatorsGrid[
-                                              index]
-                                          : buttonAdvancedOperatorsGrid[index];
+                                      final gridItemData =
+                                          state.isLogInverseMode
+                                              ? inverseLogGridData[index]
+                                              : logGridData[index];
+
                                       return CustomButton(
                                         textEditingController:
                                             mathExpressionController,
