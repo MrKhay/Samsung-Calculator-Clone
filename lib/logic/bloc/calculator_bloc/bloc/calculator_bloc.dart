@@ -137,7 +137,7 @@ String calculateExpression(String expression, bool calculateInRad) {
     // convert expression into num and then calculate and emit result
     Parser parser = Parser();
 
-    var formattedExpression = '';
+    var formattedExpression = expression;
 
     if (regExpMatchContainsLogFunction.hasMatch(expression)) {
       formattedExpression = '${expression.formatExpression()}*(180/${math.pi})';
