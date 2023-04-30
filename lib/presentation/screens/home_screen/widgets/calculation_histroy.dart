@@ -89,13 +89,16 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
                 .read<CalculationHistoryBloc>()
                 .add(const CalculationHistoryEventClearHistory());
           },
-          color: Colors.grey,
+          color: greyColor,
           minWidth: 200,
+          elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Text(
             clearHistory,
-            style: customFont(color: Colors.white),
+            style: customFont(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600),
           ),
         )
       ],
@@ -120,7 +123,8 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
                 width: width,
                 child: Text(
                   calculationHistory.expression,
-                  style: customFont(color: Colors.white),
+                  style:
+                      customFont(color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),
@@ -135,7 +139,7 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
                 alignment: Alignment.bottomRight,
                 child: Text(
                   '=${calculationHistory.expressionResult.formatNum()}',
-                  style: customFont(color: primaryColor),
+                  style: customFont(color: greenColor),
                 ),
               ),
             ),

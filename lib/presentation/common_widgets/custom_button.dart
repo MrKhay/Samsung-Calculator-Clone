@@ -72,9 +72,12 @@ class CustomButtonState extends State<CustomButton>
     }
 
     return MaterialButton(
-      color: buttonData.buttonText == '=' ? Colors.green : Colors.white10,
+      color: buttonData.buttonText == '='
+          ? Colors.green
+          : Theme.of(context).buttonTheme.colorScheme?.primary,
       shape: widget.shape,
       minWidth: widget.width,
+      elevation: 0,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
@@ -84,9 +87,13 @@ class CustomButtonState extends State<CustomButton>
               child: Text(
                 widget.buttonData.buttonText,
                 style: customFont(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: buttonData.textColor),
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: operatorsWithSpecialColors
+                          .contains(widget.buttonData.buttonText)
+                      ? buttonData.textColor
+                      : Theme.of(context).colorScheme.primary,
+                ),
               ));
         },
       ),

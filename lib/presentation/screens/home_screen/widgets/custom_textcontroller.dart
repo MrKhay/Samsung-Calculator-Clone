@@ -15,7 +15,7 @@ class CustomTextEditingController extends TextEditingController {
     List<String> textSegments = text.split(" ");
     final customFontStyle = GoogleFonts.nunito(
         fontWeight: FontWeight.w700,
-        color: primaryColor,
+        color: greenColor,
         fontSize: style!.fontSize);
 
     List<TextSpan> textSpans = [];

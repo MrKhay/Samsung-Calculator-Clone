@@ -100,4 +100,6 @@ const invalidFormat = 'Invalid Format Used';
 const digitGreaterThanNormal = 'Can\'t enter more than 15 digits.';
 const clearHistory = 'Clear History';
 
-const primaryColor = Color.fromRGBO(107, 172, 62, 1);
+const greenColor = Color.fromRGBO(73, 162, 18, 1);
+
+const greyColor = Color.fromRGBO(231, 231, 231, 1);

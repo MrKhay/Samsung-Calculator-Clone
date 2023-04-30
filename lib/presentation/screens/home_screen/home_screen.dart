@@ -42,8 +42,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> setLandscape() async {
     isLandScape = true;
-    await SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft]);
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
@@ -78,8 +80,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         curve: Curves.linear,
       ),
     );
-    _animationColor =
-        Tween<Color>(begin: Colors.grey, end: primaryColor).animate(
+    _animationColor = Tween<Color>(begin: Colors.grey, end: greenColor).animate(
       CurvedAnimation(
         parent: _colorAnimationController,
         curve: Curves.easeInOut,
@@ -121,6 +122,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final expressionResult = context.watch<CalculatorBloc>().state.result;
     final animationStatus =
         _positionAnimationController.status == AnimationStatus.completed;
+    SystemUiOverlayStyle overlayStyle =
+        Theme.of(context).colorScheme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light;
 
     mathExpressionController.addListener(() {
       calculate(text: mathExpressionController.text, context: context);
@@ -189,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     const AlwaysScrollableScrollPhysics(),
                                 controller: mathExpressionController,
                                 keyboardType: TextInputType.none,
-                                cursorColor: Colors.greenAccent,
+                                cursorColor: greenColor.withOpacity(0.5),
                                 maxLines: null,
                                 minLines: null,
                                 expands: true,
@@ -201,9 +206,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   ),
                                 ],
                                 style: customFont(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 35,
-                                    color: Colors.white),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 35,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
                             ),
                           ),
@@ -317,8 +323,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           icon: Icon(
                             FeatherIcons.delete,
                             color: mathExpressionController.text.isEmpty
-                                ? primaryColor.withOpacity(0.5)
-                                : primaryColor,
+                                ? greenColor.withOpacity(0.5)
+                                : greenColor,
                             size: 20,
                           )),
                     ),
@@ -420,333 +426,345 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       {required double width,
       required bool animationStatus,
       required String expressionResult}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 5,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BlocBuilder<CalculatorBloc, CalculatorState>(
-                      builder: (context, state) {
-                        return Visibility(
-                          visible: state.isLogRad,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 30),
-                            child: Text('Rad',
-                                style: customFont(fontWeight: FontWeight.bold)),
-                          ),
-                        );
-                      },
-                    ),
-                    Flexible(
-                      child: Container(
-                        // color: Colors.grey.withOpacity(0.2),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            AnimatedBuilder(
-                              animation: _animationVisibility,
-                              builder: (context, child) => Visibility(
-                                visible:
-                                    _visibilityAnimationController.value == 1
-                                        ? false
-                                        : true,
-                                child: Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                      // color: Colors.amber,
-                                      alignment: Alignment.topRight,
-                                      padding: const EdgeInsets.only(
-                                          right: 40, top: 10),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Flexible(
-                                            child: TextField(
-                                              textAlign: TextAlign.end,
-                                              autofocus: true,
-                                              scrollPhysics:
-                                                  const AlwaysScrollableScrollPhysics(),
-                                              controller:
-                                                  mathExpressionController,
-                                              keyboardType: TextInputType.none,
-                                              cursorColor: Colors.greenAccent,
-                                              maxLines: null,
-                                              minLines: null,
-                                              expands: true,
-                                              magnifierConfiguration:
-                                                  TextMagnifierConfiguration
-                                                      .disabled,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .allow(
-                                                  RegExp("[0-9]"),
-                                                ),
-                                              ],
-                                              style: customFont(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20,
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ],
-                                      )),
-                                ),
-                              ),
+    return OrientationBuilder(builder: (context, orientation) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BlocBuilder<CalculatorBloc, CalculatorState>(
+                        builder: (context, state) {
+                          return Visibility(
+                            visible: state.isLogRad,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 30),
+                              child: Text('Rad',
+                                  style:
+                                      customFont(fontWeight: FontWeight.bold)),
                             ),
-                            Flexible(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(right: 40, top: 10),
-                                width: width,
-                                child: AlignTransition(
-                                  alignment: _animationPosition,
-                                  child: ScaleTransition(
-                                    scale: _animationScale,
-                                    alignment: Alignment.topRight,
-                                    child: AnimatedBuilder(
-                                        animation: _animationColor,
-                                        builder: (context, child) {
-                                          return BlocBuilder<CalculatorBloc,
-                                              CalculatorState>(
-                                            builder: (context, state) {
-                                              _mathResultController.text =
-                                                  state.result.formatNum();
-                                              return TextField(
-                                                controller:
-                                                    _mathResultController,
+                          );
+                        },
+                      ),
+                      Flexible(
+                        child: Container(
+                          // color: Colors.grey.withOpacity(0.2),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              AnimatedBuilder(
+                                animation: _animationVisibility,
+                                builder: (context, child) => Visibility(
+                                  visible:
+                                      _visibilityAnimationController.value == 1
+                                          ? false
+                                          : true,
+                                  child: Expanded(
+                                    flex: 4,
+                                    child: Container(
+                                        // color: Colors.amber,
+                                        alignment: Alignment.topRight,
+                                        padding: const EdgeInsets.only(
+                                            right: 40, top: 10),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Flexible(
+                                              child: TextField(
                                                 textAlign: TextAlign.end,
-                                                enabled: animationStatus,
-                                                // focusNode: mathResultFocusNode,
                                                 autofocus: true,
+                                                scrollPhysics:
+                                                    const AlwaysScrollableScrollPhysics(),
+                                                controller:
+                                                    mathExpressionController,
                                                 keyboardType:
                                                     TextInputType.none,
                                                 cursorColor: Colors.greenAccent,
-                                                cursorWidth: 0.8,
-
+                                                maxLines: null,
+                                                minLines: null,
+                                                expands: true,
                                                 magnifierConfiguration:
                                                     TextMagnifierConfiguration
                                                         .disabled,
-
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .allow(
+                                                    RegExp("[0-9]"),
+                                                  ),
+                                                ],
                                                 style: customFont(
-                                                    color:
-                                                        _animationColor.value,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 15),
-                                              );
-                                            },
-                                          );
-                                        }),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Flexible(
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.only(right: 40, top: 10),
+                                  width: width,
+                                  child: AlignTransition(
+                                    alignment: _animationPosition,
+                                    child: ScaleTransition(
+                                      scale: _animationScale,
+                                      alignment: Alignment.topRight,
+                                      child: AnimatedBuilder(
+                                          animation: _animationColor,
+                                          builder: (context, child) {
+                                            return BlocBuilder<CalculatorBloc,
+                                                CalculatorState>(
+                                              builder: (context, state) {
+                                                _mathResultController.text =
+                                                    state.result.formatNum();
+                                                return TextField(
+                                                  controller:
+                                                      _mathResultController,
+                                                  textAlign: TextAlign.end,
+                                                  enabled: animationStatus,
+                                                  // focusNode: mathResultFocusNode,
+                                                  autofocus: true,
+                                                  keyboardType:
+                                                      TextInputType.none,
+                                                  cursorColor:
+                                                      Colors.greenAccent,
+                                                  cursorWidth: 0.8,
+
+                                                  magnifierConfiguration:
+                                                      TextMagnifierConfiguration
+                                                          .disabled,
+
+                                                  style: customFont(
+                                                      color:
+                                                          _animationColor.value,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 15),
+                                                );
+                                              },
+                                            );
+                                          }),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                    child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            isHistroyPanelSelected = !isHistroyPanelSelected;
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            isHistroyPanelSelected
+                                ? FontAwesomeIcons.calculator
+                                : FontAwesomeIcons.clock,
+                            color: Colors.grey,
+                            size: 20,
+                          )),
+                      const SizedBox(width: 20),
+                      IconButton(
+                          splashRadius: 20,
+                          alignment: Alignment.center,
+                          onPressed: () {},
+                          icon: const Icon(
+                            FontAwesomeIcons.rulerHorizontal,
+                            color: Colors.grey,
+                            size: 20,
+                          )),
+                      const SizedBox(width: 20),
+                      IconButton(
+                          onPressed: () async {
+                            if (isLandScape) {
+                              await setPortrait();
+                            } else {
+                              await setLandscape();
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.calculate_outlined,
+                            color: Colors.grey,
+                            size: 20,
+                          )),
+                      const Spacer(),
+                      AbsorbPointer(
+                        absorbing: mathExpressionController.text.isEmpty,
+                        child: IconButton(
+                            onPressed: () {
+                              // triggers haptic feedback
+                              HapticFeedback.mediumImpact();
+                              if (animationStatus) {
+                                resetAnimation();
+                                final expression = expressionResult;
+                                mathExpressionController.clear();
+                                editiText(expression, mathExpressionController);
+                              }
+                              deleteText(mathExpressionController);
+                            },
+                            icon: Icon(
+                              FeatherIcons.delete,
+                              color: mathExpressionController.text.isEmpty
+                                  ? greenColor.withOpacity(0.5)
+                                  : greenColor,
+                              size: 20,
+                            )),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
+          Container(
+            width: width,
+            height: 0.2,
+            color: Colors.grey,
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          ),
+          Expanded(
+            flex: 3,
+            child: SizedBox(
+                width: width,
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: Container(
+                        child: isHistroyPanelSelected
+                            ? Container(
+                                alignment: Alignment.topRight,
+                                padding: const EdgeInsets.only(bottom: 10),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                      right: BorderSide(
+                                          color: Colors.grey, width: 0.2)),
+                                ),
+                                child: CalculationHistroy(
+                                  textEditingController:
+                                      mathExpressionController,
+                                ))
+                            : BlocBuilder<CalculatorBloc, CalculatorState>(
+                                builder: (context, state) {
+                                final isLogInverse = state.isLogInverseMode;
+                                final inverseLogGridData = state.isLogRad
+                                    ? buttonNegativeAdvancedOperatorsDegGrid
+                                    : buttonNegativeAdvancedOperatorsGrid;
+                                final logGridData = state.isLogRad
+                                    ? buttonAdvancedOperatorsDegGrid
+                                    : buttonAdvancedOperatorsGrid;
+                                return GridView.count(
+                                    childAspectRatio: 2.9,
+                                    crossAxisCount: 3,
+                                    mainAxisSpacing: 5,
+                                    crossAxisSpacing: 15,
+                                    padding: const EdgeInsets.only(
+                                      top: 5,
+                                      left: 5,
+                                      bottom: 5,
+                                    ),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children: List.generate(
+                                      isLogInverse
+                                          ? inverseLogGridData.length
+                                          : logGridData.length,
+                                      (index) {
+                                        final gridItemData =
+                                            state.isLogInverseMode
+                                                ? inverseLogGridData[index]
+                                                : logGridData[index];
+
+                                        return CustomButton(
+                                          textEditingController:
+                                              mathExpressionController,
+                                          buttonData: gridItemData,
+                                          visibilityAnimationController:
+                                              _visibilityAnimationController,
+                                          positionAnimationController:
+                                              _positionAnimationController,
+                                          colorAnimationController:
+                                              _colorAnimationController,
+                                          fontSize: 12,
+                                          shape: const StadiumBorder(),
+                                        );
+                                      },
+                                    ));
+                              }),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 3,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: GridView.count(
+                            childAspectRatio: 3.1,
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 5,
+                            crossAxisSpacing: 15,
+                            padding: const EdgeInsets.only(
+                              top: 5,
+                              left: 5,
+                              bottom: 5,
+                            ),
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: List.generate(
+                              buttonNumbersAndOperatosGrid.length,
+                              (index) {
+                                final gridItemData =
+                                    buttonNumbersAndOperatosGrid[index];
+                                return CustomButton(
+                                  textEditingController:
+                                      mathExpressionController,
+                                  buttonData: gridItemData,
+                                  visibilityAnimationController:
+                                      _visibilityAnimationController,
+                                  positionAnimationController:
+                                      _positionAnimationController,
+                                  colorAnimationController:
+                                      _colorAnimationController,
+                                  fontSize: 16,
+                                  shape: const StadiumBorder(),
+                                );
+                              },
+                            )),
                       ),
                     ),
                   ],
-                ),
-              ),
-              Flexible(
-                  child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          isHistroyPanelSelected = !isHistroyPanelSelected;
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          isHistroyPanelSelected
-                              ? FontAwesomeIcons.calculator
-                              : FontAwesomeIcons.clock,
-                          color: Colors.grey,
-                          size: 20,
-                        )),
-                    const SizedBox(width: 20),
-                    IconButton(
-                        splashRadius: 20,
-                        alignment: Alignment.center,
-                        onPressed: () {},
-                        icon: const Icon(
-                          FontAwesomeIcons.rulerHorizontal,
-                          color: Colors.grey,
-                          size: 20,
-                        )),
-                    const SizedBox(width: 20),
-                    IconButton(
-                        onPressed: () async {
-                          if (isLandScape) {
-                            await setPortrait();
-                          } else {
-                            await setLandscape();
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.calculate_outlined,
-                          color: Colors.grey,
-                          size: 20,
-                        )),
-                    const Spacer(),
-                    AbsorbPointer(
-                      absorbing: mathExpressionController.text.isEmpty,
-                      child: IconButton(
-                          onPressed: () {
-                            // triggers haptic feedback
-                            HapticFeedback.mediumImpact();
-                            if (animationStatus) {
-                              resetAnimation();
-                              final expression = expressionResult;
-                              mathExpressionController.clear();
-                              editiText(expression, mathExpressionController);
-                            }
-                            deleteText(mathExpressionController);
-                          },
-                          icon: Icon(
-                            FeatherIcons.delete,
-                            color: mathExpressionController.text.isEmpty
-                                ? primaryColor.withOpacity(0.5)
-                                : primaryColor,
-                            size: 20,
-                          )),
-                    ),
-                  ],
-                ),
-              )),
-            ],
+                )),
           ),
-        ),
-        Container(
-          width: width,
-          height: 0.2,
-          color: Colors.grey,
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-        ),
-        Expanded(
-          flex: 3,
-          child: SizedBox(
-              width: width,
-              child: Row(
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: Container(
-                      child: isHistroyPanelSelected
-                          ? Container(
-                              alignment: Alignment.topRight,
-                              padding: const EdgeInsets.only(bottom: 10),
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                    right: BorderSide(
-                                        color: Colors.grey, width: 0.2)),
-                              ),
-                              child: CalculationHistroy(
-                                textEditingController: mathExpressionController,
-                              ))
-                          : BlocBuilder<CalculatorBloc, CalculatorState>(
-                              builder: (context, state) {
-                              final isLogInverse = state.isLogInverseMode;
-                              final inverseLogGridData = state.isLogRad
-                                  ? buttonNegativeAdvancedOperatorsDegGrid
-                                  : buttonNegativeAdvancedOperatorsGrid;
-                              final logGridData = state.isLogRad
-                                  ? buttonAdvancedOperatorsDegGrid
-                                  : buttonAdvancedOperatorsGrid;
-                              return GridView.count(
-                                  childAspectRatio: 2.9,
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 5,
-                                  crossAxisSpacing: 15,
-                                  padding: const EdgeInsets.only(
-                                    top: 5,
-                                    left: 5,
-                                    bottom: 5,
-                                  ),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: List.generate(
-                                    isLogInverse
-                                        ? inverseLogGridData.length
-                                        : logGridData.length,
-                                    (index) {
-                                      final gridItemData =
-                                          state.isLogInverseMode
-                                              ? inverseLogGridData[index]
-                                              : logGridData[index];
-
-                                      return CustomButton(
-                                        textEditingController:
-                                            mathExpressionController,
-                                        buttonData: gridItemData,
-                                        visibilityAnimationController:
-                                            _visibilityAnimationController,
-                                        positionAnimationController:
-                                            _positionAnimationController,
-                                        colorAnimationController:
-                                            _colorAnimationController,
-                                        fontSize: 12,
-                                        shape: const StadiumBorder(),
-                                      );
-                                    },
-                                  ));
-                            }),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: GridView.count(
-                          childAspectRatio: 3.1,
-                          crossAxisCount: 4,
-                          mainAxisSpacing: 5,
-                          crossAxisSpacing: 15,
-                          padding: const EdgeInsets.only(
-                            top: 5,
-                            left: 5,
-                            bottom: 5,
-                          ),
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: List.generate(
-                            buttonNumbersAndOperatosGrid.length,
-                            (index) {
-                              final gridItemData =
-                                  buttonNumbersAndOperatosGrid[index];
-                              return CustomButton(
-                                textEditingController: mathExpressionController,
-                                buttonData: gridItemData,
-                                visibilityAnimationController:
-                                    _visibilityAnimationController,
-                                positionAnimationController:
-                                    _positionAnimationController,
-                                colorAnimationController:
-                                    _colorAnimationController,
-                                fontSize: 16,
-                                shape: const StadiumBorder(),
-                              );
-                            },
-                          )),
-                    ),
-                  ),
-                ],
-              )),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 
