@@ -1,13 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/calculation_history.dart';
-import 'package:calculator/logic/bloc/calculation_history_bloc/bloc/calculation_history_bloc.dart';
+import 'package:calculator/logic/bloc/calculation_history/bloc/calculation_history_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/strings.dart';
 import '../../data/models/buttondata.dart';
-import '../../logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import '../../logic/bloc/calculator/bloc/calculator_bloc.dart';
 import 'custom_font.dart';
 
 class CustomButton extends StatefulWidget {
@@ -73,7 +73,7 @@ class CustomButtonState extends State<CustomButton>
 
     return MaterialButton(
       color: buttonData.buttonText == '='
-          ? Colors.green
+          ? greenColor
           : Theme.of(context).buttonTheme.colorScheme?.primary,
       shape: widget.shape,
       minWidth: widget.width,

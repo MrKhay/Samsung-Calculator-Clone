@@ -1,5 +1,5 @@
-import 'package:calculator/logic/bloc/calculation_history_bloc/bloc/calculation_history_bloc.dart';
-import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import 'package:calculator/logic/bloc/calculation_history/bloc/calculation_history_bloc.dart';
+import 'package:calculator/logic/bloc/calculator/bloc/calculator_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final brightness = MediaQuery.of(context).platformBrightness;
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => CalculatorBloc()),

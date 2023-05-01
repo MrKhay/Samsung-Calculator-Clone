@@ -11,11 +11,7 @@ part 'calculator_state.dart';
 
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   CalculatorBloc() : super(const CalculatorState(result: '')) {
-    on<CalculatorEventAddition>((event, emit) {
-      final result = event.firstNumber + event.secondNumber;
 
-      emit(CalculatorState(result: result.toString()));
-    });
 
     on<CalculatorEventToggleLogInverse>((event, emit) {
       emit(CalculatorState(
@@ -46,17 +42,9 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         isLogInverseMode: state.isLogInverseMode,
       ));
     });
-    on<CalculatorEventDivision>((event, emit) {
-      final result = event.firstNumber / event.secondNumber;
 
-      emit(CalculatorState(
-        result: result.toString(),
-        isLogRad: state.isLogRad,
-        isLogInverseMode: state.isLogInverseMode,
-      ));
-    });
 
-    on<CalculatorEvaluateSolveEquation>((event, emit) {
+    on<CalculatorEventEvaluateEquation>((event, emit) {
       final calculateInRad = state.isLogRad;
       if (event.expression.isEmpty) {
         emit(CalculatorState(

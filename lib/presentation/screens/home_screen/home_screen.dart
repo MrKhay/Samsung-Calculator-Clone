@@ -1,6 +1,6 @@
 import 'package:calculator/core/extensions.dart';
 import 'package:calculator/data/models/buttondata.dart';
-import 'package:calculator/logic/bloc/calculator_bloc/bloc/calculator_bloc.dart';
+import 'package:calculator/logic/bloc/calculator/bloc/calculator_bloc.dart';
 import 'package:calculator/presentation/screens/home_screen/widgets/calculation_histroy.dart';
 import 'package:calculator/presentation/screens/home_screen/widgets/custom_textcontroller.dart';
 import 'package:flutter/material.dart';
@@ -811,7 +811,7 @@ void deleteText(TextEditingController controller) {
 void calculate({required String text, required BuildContext context}) {
   context
       .read<CalculatorBloc>()
-      .add(CalculatorEvaluateSolveEquation(expression: text));
+      .add(CalculatorEventEvaluateEquation(expression: text));
 }
 
 // replaces ending operator with new one
