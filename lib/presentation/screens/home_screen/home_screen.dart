@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
@@ -122,10 +123,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final expressionResult = context.watch<CalculatorBloc>().state.result;
     final animationStatus =
         _positionAnimationController.status == AnimationStatus.completed;
+    final deviceTheme = Theme.of(context);
     SystemUiOverlayStyle overlayStyle =
-        Theme.of(context).colorScheme.brightness == Brightness.dark
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light;
+        deviceTheme.colorScheme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle(
+                // theme general statius bar color
+                statusBarColor: deviceTheme.colorScheme.background,
+                // them the divider at the end of the screen
+                systemNavigationBarColor: deviceTheme.colorScheme.background,
+                //theme status bar icon
+                statusBarIconBrightness: Brightness.light,
+              )
+            : SystemUiOverlayStyle(
+                // theme general statius bar color
+                statusBarColor: deviceTheme.colorScheme.background,
+                // them the divider at the end of the screen
+                systemNavigationBarColor: deviceTheme.colorScheme.background,
+                //theme status bar icon
+                statusBarIconBrightness: Brightness.dark,
+              );
 
     mathExpressionController.addListener(() {
       calculate(text: mathExpressionController.text, context: context);
@@ -140,18 +156,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       });
     });
 
-    return SafeArea(
-      child: Scaffold(
-          body: isLandScape
-              ? _landScapeLayout(
-                  width: width,
-                  animationStatus: animationStatus,
-                  expressionResult: expressionResult,
-                )
-              : _portraitLayout(
-                  width: width,
-                  animationStatus: animationStatus,
-                  expressionResult: expressionResult)),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlayStyle,
+      child: SafeArea(
+        child: Scaffold(
+            body: isLandScape
+                ? _landScapeLayout(
+                    width: width,
+                    animationStatus: animationStatus,
+                    expressionResult: expressionResult,
+                  )
+                : _portraitLayout(
+                    width: width,
+                    animationStatus: animationStatus,
+                    expressionResult: expressionResult)),
+      ),
     );
   }
 

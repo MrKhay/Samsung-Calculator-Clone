@@ -1,7 +1,7 @@
 import 'package:calculator/data/models/calculation_history.dart';
 import 'package:hive/hive.dart';
 
-import '../../repositories/local_database_protocol.dart';
+import '../repositories/local_database_protocol.dart';
 
 class CalculationHistoryDataProvider implements LocalDataBaseProtocol {
   @override

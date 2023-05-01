@@ -11,6 +11,7 @@ class AppTheme {
       brightness: Brightness.light,
       seedColor: Colors.green,
       background: Colors.white,
+      secondary: Colors.black,
       primary: Colors.black,
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,

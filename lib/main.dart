@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'core/themes/app_theme.dart';
-import 'data/data_providers/local_data_provider/calculation_history_data.dart';
+import 'data/data_providers/calculation_history_data.dart';
 import 'logic/debug/app_bloc_observer.dart';
 import 'presentation/router/app_router.dart';
 
@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => CalculatorBloc()),
         BlocProvider(
             create: (context) => CalculationHistoryBloc(
-                historyDataProvider: CalculationHistoryDataProvider(),)),
+                  historyDataProvider: CalculationHistoryDataProvider(),
+                )),
       ],
       child: MaterialApp(
         theme: AppTheme.lightTheme,
