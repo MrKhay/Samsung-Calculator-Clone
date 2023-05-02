@@ -92,7 +92,7 @@ class CustomButtonState extends State<CustomButton>
                   color: operatorsWithSpecialColors
                           .contains(widget.buttonData.buttonText)
                       ? buttonData.textColor
-                      : Theme.of(context).colorScheme.primary,
+                      : Theme.of(context).colorScheme.onBackground,
                 ),
               ));
         },

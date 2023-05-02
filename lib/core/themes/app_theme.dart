@@ -12,7 +12,7 @@ class AppTheme {
       seedColor: Colors.green,
       background: Colors.white,
       secondary: Colors.black,
-      primary: Colors.black,
+      onBackground: Colors.black,
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     buttonTheme: ButtonThemeData(
@@ -38,7 +38,7 @@ class AppTheme {
         background: Colors.black,
         brightness: Brightness.dark,
         surface: Colors.black,
-        primary: Colors.white,
+        onBackground: Colors.white,
       ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       buttonTheme: ButtonThemeData(

@@ -92,13 +92,15 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
           color: greyColor,
           minWidth: 200,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Text(
             clearHistory,
             style: customFont(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600),
+              color: Theme.of(context).colorScheme.background,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         )
       ],
@@ -123,8 +125,8 @@ class _CalculationHistroyState extends State<CalculationHistroy> {
                 width: width,
                 child: Text(
                   calculationHistory.expression,
-                  style:
-                      customFont(color: Theme.of(context).colorScheme.primary),
+                  style: customFont(
+                      color: Theme.of(context).colorScheme.onBackground),
                 ),
               ),
             ),

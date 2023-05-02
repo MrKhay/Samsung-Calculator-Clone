@@ -227,7 +227,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 style: customFont(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 35,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
                                 ),
                               ),
                             ),
@@ -527,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                   fontSize: 20,
                                                   color: Theme.of(context)
                                                       .colorScheme
-                                                      .primary,
+                                                      .onBackground,
                                                 ),
                                               ),
                                             ),
